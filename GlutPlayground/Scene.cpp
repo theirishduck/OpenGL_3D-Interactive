@@ -31,7 +31,7 @@ void Scene::ChangeViewport(int w, int h)
 	m_PzBuffer = new float[int(m_Width / 2.0 * m_Height)];
 	m_PzShow = new float[int(m_Width / 2.0 * m_Height)];
 	
-	printf("Reset (%d, %d)\n",w,h);
+	//printf("Reset (%d, %d)\n",w,h);
 }
 
 void Scene::ResetMouse()
@@ -47,7 +47,7 @@ void Scene::ReadZbuffer()
 	glDepthFunc(GL_LEQUAL);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	glReadPixels(0, 0, m_Width / 2, m_Height, GL_DEPTH_COMPONENT, GL_FLOAT, m_PzBuffer);
-	printf("Read %d * %d\n", m_Width / 2, m_Height);
+	//printf("Read %d * %d\n", m_Width / 2, m_Height);
 }
 
 void Scene::RenderLeft()
@@ -74,7 +74,7 @@ void Scene::RenderRight()
 			m_PzShow[h * half_width + w] = 5 * (1 - Dz);
 
 		}
-	printf("Write %d * %d\n", m_Width / 2, m_Height);
+	//printf("Write %d * %d\n", m_Width / 2, m_Height);
 	glDrawPixels(m_Width / 2, m_Height, GL_LUMINANCE, GL_FLOAT, m_PzShow);
 	glutSwapBuffers();
 }

@@ -125,14 +125,22 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FileUtil.cpp" />
+    <ClCompile Include="global.cpp" />
+    <ClCompile Include="GLPlane3D.cpp" />
     <ClCompile Include="GLScene.cpp" />
+    <ClCompile Include="GlutMainWindow.cpp" />
+    <ClCompile Include="GlutSubDepthWindow.cpp" />
+    <ClCompile Include="GlutSubSceneWindow.cpp" />
+    <ClCompile Include="GlutSubWindow.cpp" />
     <ClCompile Include="GlutWindow.cpp" />
     <ClCompile Include="ImagePlane.cpp" />
     <ClCompile Include="KeyboardScene.cpp" />
     <ClCompile Include="Label3D.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="GLScene3D.cpp" />
     <ClCompile Include="MainwindowScene.cpp" />
     <ClCompile Include="ModelScene.cpp" />
+    <ClCompile Include="GLObject3D.cpp" />
     <ClCompile Include="ObjModel.cpp" />
     <ClCompile Include="PhotoScene.cpp" />
     <ClCompile Include="Plane3D.cpp" />
@@ -146,13 +154,20 @@
     <ClInclude Include="Environment.h" />
     <ClInclude Include="FileUtil.h" />
     <ClInclude Include="global.h" />
+    <ClInclude Include="GLPlane3D.h" />
     <ClInclude Include="GLScene.h" />
+    <ClInclude Include="GlutMainWindow.h" />
+    <ClInclude Include="GlutSubDepthWindow.h" />
+    <ClInclude Include="GlutSubSceneWindow.h" />
+    <ClInclude Include="GlutSubWindow.h" />
     <ClInclude Include="GlutWindow.h" />
     <ClInclude Include="ImagePlane.h" />
     <ClInclude Include="KeyboardScene.h" />
     <ClInclude Include="Label3D.h" />
+    <ClInclude Include="GLScene3D.h" />
     <ClInclude Include="MainwindowScene.h" />
     <ClInclude Include="ModelScene.h" />
+    <ClInclude Include="GLObject3D.h" />
     <ClInclude Include="ObjModel.h" />
     <ClInclude Include="PhotoScene.h" />
     <ClInclude Include="Plane3D.h" />
@@ -160,6 +175,9 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Space3D.h" />
     <ClInclude Include="Sphere3D.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

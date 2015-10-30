@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include "GLObject3D.h"
 
 using namespace std;
 //#include "iTCPrecv.h"
@@ -89,28 +90,53 @@ struct ObjGroup{
 	int emgValue;
 };
 
-class ObjModel{
+class ObjModel 
+	: public GLObject3D
+{
 public:
 	ObjModel();
 	~ObjModel();
 	void Load(char* filename);
-	void Render();
-	void Render_depth();
-	void SetEMGValue(int groupID,int value){if(groupID >= m_ObjGroup.size()) return; m_ObjGroup[groupID].emgValue = value;}
+	int RenderObject();
+	
+	void SetEMGValue(int groupID,int value)
+	{
+		if(groupID >= m_ObjGroup.size()) 
+			return; m_ObjGroup[groupID].emgValue = value;
+	}
+
 	void draw_wired_circle(float x, float y,float z, float radius);
 	float ball_pos_z;
 	
-	int GetMtlNum(){return m_ObjMaterial.size();}
-	int GetVertexNum(){return m_VertexBuffer.size();}
-	int GetFaceNum(){return m_IndexBuffer.size()/3;}
-	int GetGroupNum(){return m_ObjGroup.size();}
+	int GetMtlNum()
+	{
+		return m_ObjMaterial.size();
+	}
+
+	int GetVertexNum()
+	{
+		return m_VertexBuffer.size();
+	}
+
+	int GetFaceNum()
+	{
+		return m_IndexBuffer.size()/3;
+	}
+
+	int GetGroupNum()
+	{
+		return m_ObjGroup.size();
+	}
+
 	float depth_min_temp;
+
 	struct float3
 	{
 		float x;
 		float y;
 		float z;
 	} ;	
+
 	float3 center,center_temp;
 	float max_radius;
 	

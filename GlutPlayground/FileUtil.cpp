@@ -35,7 +35,7 @@ GLuint FileUtil::LoadTextureFromFile(const char *filename)
 	IplImage *pImage = cvLoadImage(filename);
 	cvFlip(pImage);
 	if (!pImage) {
-		fprintf(stderr, "PhotoScene::PhotoScene(): cannot load image %s\n", filename);
+		fprintf(stderr, "FileUtil::LoadTextureFromFile(): cannot load image %s\n", filename);
 		throw - 1;
 	}
 
@@ -49,7 +49,6 @@ GLuint FileUtil::LoadTextureFromFile(const char *filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glDisable(GL_TEXTURE_2D);
 
 	return texture;
 }

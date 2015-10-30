@@ -3,16 +3,92 @@
 #include "stdio.h"
 
 CCamera::CCamera(){
-	m_PosX = 0; m_PosY = 0; m_PosZ = -5;
-	m_UpX = 0; m_UpY = 1; m_UpZ = 0;
+	m_PosX = 0; 
+	m_PosY = 0; 
+	m_PosZ = -5;
+
+	m_UpX = 0; 
+	m_UpY = 1; 
+	m_UpZ = 0;
+
 	m_AtX = m_AtY = m_AtZ = 0;
+
 	m_RotateX = m_RotateY = m_RotateZ = 0;
-	gluLookAt(m_PosX,m_PosY,m_PosZ,0,0,0,0,1,0);
+
+	gluLookAt(m_PosX, m_PosY, m_PosZ, 
+		0, 0, 0, 
+		0, 1, 0);
+
 	m_shift = 0;
 }
+
 CCamera::~CCamera(){
 
 }
+
+void CCamera::SetPerspective(float fov, float aspect, float nearP, float farP) {
+	m_Fov = fov;
+	m_Aspect = aspect;
+	m_Near = nearP;
+	m_Far = farP;
+
+	gluPerspective(fov, aspect, nearP, farP);
+}
+
+void CCamera::SetPos(float x, float y, float z) {
+	m_RotateX = m_RotateY = m_RotateZ = 0;
+	m_PosX = x; m_PosY = y; m_PosZ = z;
+	Update();
+}
+
+void CCamera::SetUp(float x, float y, float z)
+{
+	m_UpX = x;
+	m_UpY = y;
+	m_UpZ = z;
+	Update();
+}
+
+void CCamera::SetAt(float x, float y, float z)
+{
+	m_AtX = x;
+	m_AtY = y;
+	m_AtZ = z;
+	Update();
+}
+
+void CCamera::RotateX(float angle)
+{
+	m_RotateX += angle;
+	Update();
+}
+
+void CCamera::RotateY(float angle)
+{
+	m_RotateY += angle;
+	Update();
+}
+
+void CCamera::RotateZ(float angle)
+{
+	m_RotateZ += angle;
+	Update();
+}
+
+void CCamera::GetFront(float * front)
+{
+	front[0] = m_FinalFront[0];
+	front[1] = m_FinalFront[1];
+	front[2] = m_FinalFront[2];
+}
+
+void CCamera::GetUp(float * up)
+{
+	up[0] = m_FinalUp[0];
+	up[1] = m_FinalUp[1];
+	up[2] = m_FinalUp[2];
+}
+
 void CCamera::Update(){
 	float finalX = m_PosX-m_AtX, finalY = m_PosY-m_AtY, finalZ = m_PosZ-m_AtZ;
 	float upX = m_UpX, upY = m_UpY, upZ = m_UpZ;

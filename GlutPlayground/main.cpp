@@ -1,3 +1,4 @@
+/*
 #include <iostream>
 #include <cv.h>
 #include <cxcore.h>
@@ -108,8 +109,8 @@ int main(int argc, char *argv[])
 	g_PhotoScene->LoadImageFromFile("img/pic3.bmp");
 	g_ModelScene->SelectModel();
 
-	glutSetWindow(g_MainWindow);
-	glutFullScreen();
+	//glutSetWindow(g_MainWindow);
+	//glutFullScreen();
 	glutMainLoop();
 
 	return 0;
@@ -132,15 +133,18 @@ void DisplayFunc_SubLeft()
 	glutSwapBuffers();
 
 	g_CurScene->ReadZbuffer();
+	//glutPostRedisplay();
 }
 
 void DisplayFunc_SubRight()
 {
 	g_CurScene->RenderRight();
+	//glutPostRedisplay();
 }
 
 void Reshape(int width, int height)
 {
+	printf("Reshap %d\n",glutGetWindow());
 	g_Width = width;
 	g_Height = height;
 
@@ -163,11 +167,13 @@ void Reshape(int width, int height)
 
 void Reshape_SubLeft(int width, int height)
 {
+	printf("Reshap %d\n", glutGetWindow());
 	glViewport(0, 0, width, height);
 }
 
 void Reshape_SubRight(int width, int height)
 {
+	printf("Reshap %d\n", glutGetWindow());
 	glViewport(0, 0, width, height);
 }
 
@@ -208,12 +214,15 @@ void MouseWheelFunc(int wheel, int direction, int x, int y)
 
 void Rerender()
 {
+	
 	int curWindow = glutGetWindow();
+
 	glutSetWindow(g_SubWindow_Left);
 	glutPostRedisplay();
 
 	glutSetWindow(g_SubWindow_Right);
 	glutPostRedisplay();
+
 	glutSetWindow(curWindow);
 }
 
@@ -238,5 +247,108 @@ void OnChangeScene(int id)
 			break;
 	}
 }
+*/
 
+#include <iostream>
+#include <cv.h>
+#include <cxcore.h>
+#include <highgui.h>
+#include <GL\glew.h>
+#include <GL\freeglut.h>
+#include <glm\glm.hpp>
 
+#include "GlutWindow.h"
+#include "GlutMainWindow.h"
+#include "GlutSubSceneWindow.h"
+#include "GlutSubDepthWindow.h"
+#include "GLScene3D.h"
+#include "GLPlane3D.h"
+#include "FileUtil.h"
+#include "global.h"
+
+#define DEFAULT_W 640
+#define DEFAULT_H 480
+
+GlutMainWindow *g_MainWindow;
+
+// Wrapper Functions
+GlutSubSceneWindow *CreateKeyboardWindow();
+GlutSubDepthWindow *CreateDepthWindow(GlutWindow *refWindow);
+GlutSubSceneWindow *CreateSimpleWindow();
+
+int main(int argc, char *argv[])
+{
+	glutInit(&argc, argv);
+
+	g_MainWindow = GlutWindow::CreateGlutMainWindow(100, 100, DEFAULT_W, DEFAULT_H, 2, 2);
+
+	GlutSubWindow *sb_keyboard = CreateKeyboardWindow();
+	GlutSubWindow *sb_simple = CreateSimpleWindow();
+	
+	g_MainWindow->AddSubWindow(sb_keyboard);
+	g_MainWindow->AddSubWindow(CreateDepthWindow(sb_keyboard));
+
+	g_MainWindow->AddSubWindow(sb_simple);
+	g_MainWindow->AddSubWindow(CreateDepthWindow(sb_simple));
+
+	glutMainLoop();
+	
+	return 0;
+}
+
+GlutSubSceneWindow *CreateKeyboardWindow()
+{
+	static const char *KEYBOARD_TEXTURES[] = {
+		"img/kb_1.bmp",
+		"img/kb_2.bmp",
+		"img/kb_3.bmp",
+		"img/kb_4.bmp",
+		"img/kb_5.bmp",
+		"img/kb_6.bmp",
+		"img/kb_7.bmp",
+		"img/kb_8.bmp",
+		"img/kb_9.bmp",
+		"img/kb_10.bmp",
+		"img/kb_11.bmp",
+		"img/kb_12.bmp",
+	};
+
+	GlutSubSceneWindow *subWindow = GlutWindow::CreareGlutSubSceneWindow(g_MainWindow);
+	GLScene3D *scene = new GLScene3D(0, 0, 3.0f);
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			GLuint texture = GlutWindow::LoadTexture(subWindow, KEYBOARD_TEXTURES[i * 3 + j]);
+			GLPlane3D *plane = new GLPlane3D(
+				glm::vec3(-4.0f + j * 2, 1.0f - i * 2, 0.0f),
+				glm::vec3(1.0f, 1.0f, 1.0f),
+				2.0f);
+			plane->SetTexture(texture);
+			scene->AddObject(plane);
+		}
+	}
+	subWindow->SetScene(scene);
+
+	return subWindow;
+}
+
+GlutSubDepthWindow *CreateDepthWindow(GlutWindow *refWindow)
+{
+	GlutSubDepthWindow *subWindow = GlutWindow::CreareGlutSubDepthWindow(g_MainWindow, refWindow);
+	return subWindow;
+}
+
+GlutSubSceneWindow *CreateSimpleWindow()
+{
+	GlutSubSceneWindow *subWindow = GlutWindow::CreareGlutSubSceneWindow(g_MainWindow);
+	GLScene3D *scene = new GLScene3D(0, 0, 3.0f);
+	GLPlane3D *plane = new GLPlane3D(
+		glm::vec3(-2.0f, 1.0f, 0.0f),
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		2.0f);
+	scene->AddObject(plane);
+	subWindow->SetScene(scene);
+	
+	return subWindow;
+}

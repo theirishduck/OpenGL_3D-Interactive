@@ -6,6 +6,7 @@ class GLScene
 {
 public:
 	GLScene();
+	GLScene(float mx, float my, float mz);
 	~GLScene();
 protected:
 	glm::vec3 m_mouse;

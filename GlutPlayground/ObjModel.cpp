@@ -11,15 +11,12 @@
 #define _USE_MATH_DEFINES
 #include "math.h"
 
-
-
 extern float fov;
 extern float aspect ; 
 extern float nearP ; 
 extern float farP ;
 extern float camera_shift;
 extern float aspect;
-
 extern float ball_pos_z;
 
 ObjModel::ObjModel(): m_SpinEnable(false){
@@ -76,9 +73,6 @@ int ObjModel::LoadTexture(const char* filename){
 	IplImage* pImage = cvLoadImage(filename);
 	if(!pImage) return 0;
 	cvFlip(pImage);
-	//cvNamedWindow("test", 0);
-	//cvShowImage("test",pImage);
-	//cvWaitKey(1);
 
 	GLuint texture = 0;
     glGenTextures(1, &texture);
@@ -357,7 +351,7 @@ void ObjModel::Create_Normals(int* p,float norm[3]){
 	
 };
 
-void ObjModel::Render(){
+int ObjModel::RenderObject(){
 	
 	//GLfloat lightPos0[] = {0.0f, 0.0f, 500.0f, 1.0f};
 	//GLfloat lightPos1[] = {0.0f, 0.0f, -500.0f, 1.0f};
@@ -454,12 +448,11 @@ void ObjModel::Render(){
 
 	}
 
-		glDisable(GL_TEXTURE_2D);
+		// glDisable(GL_TEXTURE_2D);
 		if(m_ObjGroup.size()>0) id = (id+1)%(m_ObjGroup.size()*10);
 	}
 
-
-	
+	return 0;
 }
 
 void ObjModel::draw_wired_circle(float x, float y, float z, float radius)

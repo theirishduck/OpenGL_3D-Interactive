@@ -1,5 +1,6 @@
 #include <GL\freeglut.h>
 #include "ModelScene.h"
+#include "Camera.h"
 #include "FileUtil.h"
 
 const GLfloat ModelScene::diffuse[4] = { 0.6, 0.6, 0.6, 1 };
@@ -29,7 +30,7 @@ void ModelScene::RenderLeft()
 {
 	Scene::RenderLeft();
 	glPushMatrix();
-	m_Model.Render();
+	m_Model.RenderObject();
 	glPopMatrix();
 }
 
