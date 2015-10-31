@@ -130,6 +130,7 @@
     <ClCompile Include="GLScene.cpp" />
     <ClCompile Include="GlutMainWindow.cpp" />
     <ClCompile Include="GlutSubDepthWindow.cpp" />
+    <ClCompile Include="GlutSubMultiSceneWindow.cpp" />
     <ClCompile Include="GlutSubSceneWindow.cpp" />
     <ClCompile Include="GlutSubWindow.cpp" />
     <ClCompile Include="GlutWindow.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="GLScene.h" />
     <ClInclude Include="GlutMainWindow.h" />
     <ClInclude Include="GlutSubDepthWindow.h" />
+    <ClInclude Include="GlutSubMultiSceneWindow.h" />
     <ClInclude Include="GlutSubSceneWindow.h" />
     <ClInclude Include="GlutSubWindow.h" />
     <ClInclude Include="GlutWindow.h" />

@@ -93,6 +93,9 @@
     <ClCompile Include="TCPReceiver.cpp">
       <Filter>原始程式檔</Filter>
     </ClCompile>
+    <ClCompile Include="GlutSubMultiSceneWindow.cpp">
+      <Filter>原始程式檔</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -171,6 +174,9 @@
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="TCPReceiver.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="GlutSubMultiSceneWindow.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>

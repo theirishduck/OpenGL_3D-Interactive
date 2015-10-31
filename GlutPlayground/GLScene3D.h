@@ -15,13 +15,6 @@ public:
 	~GLScene3D();
 	
 	int AddObject(GLObject3D *obj);
-	
-	GLCamera *GetCamera() const;
-	void SetCamera(GLCamera *camera);
-	bool IsMouseVisiable() const;
-	void SetMouseVisiable(bool b);
-	bool IsPhysicalMouseEnable() const;
-	void SetPhysicalMouseEnable(bool b);
 
 	virtual int Render(int width, int height);
 	virtual int Setup(int width, int height);
@@ -35,17 +28,9 @@ public:
 	int PassiveMotionHandler(int x, int y);
 
 protected:
-	GLCamera *m_camera;
 	std::vector<GLObject3D*> m_objects;
-
-	bool m_physicalMouseEnable;
-	bool m_mouseVisiable;
-	float m_mouseRadius;
-	glm::vec3 m_mouseColor;
 
 	GLfloat *m_diffuse;
 	GLfloat *m_ambient;
-
-	void RenderMouse();
 };
 

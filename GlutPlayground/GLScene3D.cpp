@@ -3,28 +3,14 @@
 #include "GLObject3D.h"
 #include "GLScene3D.h"
 
-
-#define DEFAULT_MOUSE_RADIUS 0.5f
-#define DEFAULT_MOUSE_COLOR glm::vec3(1.0f, 0.0f, 0.0f)
-
-GLScene3D::GLScene3D() :
-	m_camera(NULL), 
-	m_physicalMouseEnable(false),
-	m_mouseVisiable(false),
-	m_mouseColor(DEFAULT_MOUSE_COLOR),
-	m_mouseRadius(DEFAULT_MOUSE_RADIUS)
+GLScene3D::GLScene3D()
 {
 	m_diffuse = new GLfloat[4]{ 0.6f, 0.6f, 0.6f, 1.0f };
 	m_ambient = new GLfloat[4]{ 0.1f, 0.1f, 0.1f, 1.0f };
 }
 
 GLScene3D::GLScene3D(float mx, float my, float mz):
-	GLScene(mx, my, mz), 
-	m_camera(NULL), 
-	m_physicalMouseEnable(false),
-	m_mouseVisiable(false),
-	m_mouseColor(DEFAULT_MOUSE_COLOR),
-	m_mouseRadius(DEFAULT_MOUSE_RADIUS)
+	GLScene(mx, my, mz)
 {
 	m_diffuse = new GLfloat[4]{ 0.6f, 0.6f, 0.6f, 1.0f };
 	m_ambient = new GLfloat[4]{ 0.1f, 0.1f, 0.1f, 1.0f };
@@ -58,35 +44,7 @@ int GLScene3D::AddObject(GLObject3D *obj)
 	return 0;
 }
 
-GLCamera *GLScene3D::GetCamera() const
-{
-	return m_camera;
-}
 
-void GLScene3D::SetCamera(GLCamera *camera)
-{
-	m_camera = camera;
-}
-
-bool GLScene3D::IsMouseVisiable() const
-{
-	return m_mouseVisiable;
-}
-
-void GLScene3D::SetMouseVisiable(bool b)
-{
-	m_mouseVisiable = b;
-}
-
-bool GLScene3D::IsPhysicalMouseEnable() const
-{
-	return m_physicalMouseEnable;
-}
-
-void GLScene3D::SetPhysicalMouseEnable(bool b)
-{
-	m_physicalMouseEnable = b;
-}
 
 int GLScene3D::Render(int width, int height)
 {
@@ -110,18 +68,7 @@ int GLScene3D::Render(int width, int height)
 
 int GLScene3D::Setup(int width, int height)
 {
-	if (m_camera == NULL)
-	{
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-	}
-	else
-	{
-		m_camera->UpdateViewport(width, height);
-	}
-	
+	GLScene::Setup(width, height);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, m_diffuse);
 	glLightfv(GL_LIGHT1, GL_AMBIENT, m_ambient);
@@ -143,11 +90,7 @@ int GLScene3D::Setup(int width, int height)
 
 int GLScene3D::Update(int width, int height)
 {
-	if (m_camera != NULL)
-	{
-		m_camera->Update();
-	}
-	
+	GLScene::Update(width, height);
 	// Check event
 	for (std::vector<GLObject3D*>::iterator it = m_objects.begin(); it != m_objects.end(); it++)
 	{
@@ -242,15 +185,4 @@ int GLScene3D::MotionHandler(int x, int y)
 int GLScene3D::PassiveMotionHandler(int x, int y)
 {
 	return 0;
-}
-
-void GLScene3D::RenderMouse()
-{
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glPushMatrix();
-	glTranslatef(m_mouse.x, m_mouse.y, m_mouse.z);
-	glColor3f(m_mouseColor.r, m_mouseColor.g, m_mouseColor.b);
-	glutSolidSphere(m_mouseRadius, 100, 10);
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glPopMatrix();
 }

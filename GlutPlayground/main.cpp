@@ -343,13 +343,13 @@ int main(int argc, char *argv[])
 	//g_MainWindow->AddSubWindow(sb_main);
 	//g_MainWindow->AddSubWindow(CreateDepthWindow(sb_main));
 
-	GlutSubWindow *sb_model = CreateModelWindow();
-	g_MainWindow->AddSubWindow(sb_model);
-	g_MainWindow->AddSubWindow(CreateDepthWindow(sb_model));
+	//GlutSubWindow *sb_model = CreateModelWindow();
+	//g_MainWindow->AddSubWindow(sb_model);
+	//g_MainWindow->AddSubWindow(CreateDepthWindow(sb_model));
 
-	//GlutSubWindow *sb_keyboard = CreateKeyboardWindow();
-	//g_MainWindow->AddSubWindow(sb_keyboard);
-	//g_MainWindow->AddSubWindow(CreateDepthWindow(sb_keyboard));
+	GlutSubWindow *sb_keyboard = CreateKeyboardWindow();
+	g_MainWindow->AddSubWindow(sb_keyboard);
+	g_MainWindow->AddSubWindow(CreateDepthWindow(sb_keyboard));
 
 	if (argc >= 2 && strcmp(argv[1], "-n") == 0)
 	{
