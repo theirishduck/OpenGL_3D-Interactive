@@ -2,17 +2,6 @@
 #include <GL\freeglut.h>
 #include "GlutMainWindow.h"
 
-GlutWindow *GlutWindow::GetGlutWindow(GlutWindowDescriptor gd)
-{
-	if (gd < 0 || gd >= MAX_GLUTWINDOW)
-	{
-		std::cerr << "GlutWindow::GetGlutWindow(): invalid access at GlutWindowPool." << std::endl;
-		return NULL;
-	}
-
-	return g_glutWindowPool[gd];
-}
-
 GlutMainWindow *GlutWindow::CreateGlutMainWindow(int x, int y, int w, int h, int nRows, int nCols)
 {
 	GlutMainWindow *mainWindowPtr = new GlutMainWindow(x, y, w, h, nRows, nCols);
@@ -75,7 +64,7 @@ int GlutMainWindow::Layout(int w, int h)
 			}
 			else if ((*it) == NULL)
 			{
-				std::cerr << "GlutMainWindow::Layout(): there is a null pointer in sub-windows, please check your code." << std::endl;
+				std::cerr << "GlutMainWindow::Layout(): there is a null pointer in subwindows, please check your code." << std::endl;
 			}
 		}
 	}

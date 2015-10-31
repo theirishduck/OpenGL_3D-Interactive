@@ -32,7 +32,7 @@ void CCamera::SetPerspective(float fov, float aspect, float nearP, float farP) {
 	m_Near = nearP;
 	m_Far = farP;
 
-	gluPerspective(fov, aspect, nearP, farP);
+	//gluPerspective(fov, aspect, nearP, farP);
 }
 
 void CCamera::SetPos(float x, float y, float z) {
@@ -89,9 +89,17 @@ void CCamera::GetUp(float * up)
 	up[2] = m_FinalUp[2];
 }
 
+void CCamera::UpdateViewport(int w, int h)
+{
+	GLCamera::UpdateViewport(w, h);
+	m_Aspect = (float)w / (float)h;
+}
+
 void CCamera::Update(){
+
 	float finalX = m_PosX-m_AtX, finalY = m_PosY-m_AtY, finalZ = m_PosZ-m_AtZ;
 	float upX = m_UpX, upY = m_UpY, upZ = m_UpZ;
+
 	m_FinalUp[0] = upX; m_FinalUp[1] = upY; m_FinalUp[2] = upZ;
 
 	//¹ïx¶bÂà
@@ -144,14 +152,15 @@ void CCamera::Update(){
 	// Projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(m_Fov,m_Aspect,m_Near,m_Far);
+	gluPerspective(m_Fov, m_Aspect, m_Near, m_Far);
 
 	// Camera
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(finalX+shift_vX, finalY+shift_vY, finalZ+shift_vZ, 
-		m_AtX+shift_vX, m_AtY+shift_vY, m_AtZ+shift_vZ, 
-		upX,upY,upZ);
+	gluLookAt(finalX + shift_vX, finalY + shift_vY, finalZ + shift_vZ, 
+		m_AtX + shift_vX, m_AtY + shift_vY, m_AtZ + shift_vZ, 
+		upX, upY, upZ);
+
 	//printf("In (%f, %f, %f)\nLook (%f, %f, %f)\nUp (%f, %f, %f)\n", finalX + shift_vX, finalY + shift_vY, finalZ + shift_vZ,
 	//	m_AtX + shift_vX, m_AtY + shift_vY, m_AtZ + shift_vZ,
 	//	upX, upY, upZ);

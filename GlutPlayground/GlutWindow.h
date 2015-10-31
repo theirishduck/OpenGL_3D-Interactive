@@ -20,6 +20,7 @@ private:
 
 public:
 	static GlutWindow *GetGlutWindow(GlutWindowDescriptor gd);
+	static bool IsValid(GlutWindowDescriptor gd);
 	static GlutMainWindow *CreateGlutMainWindow(int x, int y, int w, int h, int nRows, int nCols);
 	static GlutSubSceneWindow *CreareGlutSubSceneWindow(GlutMainWindow *mainWindow);
 	static GlutSubDepthWindow *CreareGlutSubDepthWindow(GlutMainWindow *mainWindow, GlutWindow *refWindow);

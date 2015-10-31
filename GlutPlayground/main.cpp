@@ -263,16 +263,43 @@ void OnChangeScene(int id)
 #include "GlutSubDepthWindow.h"
 #include "GLScene3D.h"
 #include "GLPlane3D.h"
+#include "ObjModel.h"
+#include "Camera.h"
 #include "FileUtil.h"
 #include "global.h"
 
 #define DEFAULT_W 640
 #define DEFAULT_H 480
 
+static GLfloat UV_LEFT[] = {
+	0.0f, 0.0f,
+	0.5f, 0.0f,
+	0.5f, 1.0f,
+	0.0f, 1.0f
+};
+
+static GLfloat UV_RIGHT[] = {
+	0.5f, 0.0f,
+	1.0f, 0.0f,
+	1.0f, 1.0f,
+	0.5f, 1.0f
+};
+
+static const char *IMGS[] = {
+	"img/pic1.bmp",
+	"img/pic2.bmp",
+	"img/pic3.bmp",
+};
+
+static const int UV_SIZE = 8;
+
 GlutMainWindow *g_MainWindow;
 
 // Wrapper Functions
+GlutSubSceneWindow *CreateMainSceneWindow();
 GlutSubSceneWindow *CreateKeyboardWindow();
+GlutSubSceneWindow *CreateModelWindow();
+GlutSubSceneWindow *CreatePhotoSceneWindow(GLfloat *uvs, int size);
 GlutSubDepthWindow *CreateDepthWindow(GlutWindow *refWindow);
 GlutSubSceneWindow *CreateSimpleWindow();
 
@@ -280,20 +307,79 @@ int main(int argc, char *argv[])
 {
 	glutInit(&argc, argv);
 
-	g_MainWindow = GlutWindow::CreateGlutMainWindow(100, 100, DEFAULT_W, DEFAULT_H, 2, 2);
-
-	GlutSubWindow *sb_keyboard = CreateKeyboardWindow();
-	GlutSubWindow *sb_simple = CreateSimpleWindow();
+	g_MainWindow = GlutWindow::CreateGlutMainWindow(100, 100, DEFAULT_W, DEFAULT_H, 1, 2);
 	
+	/*
+	GlutSubWindow *sb_main = CreateMainSceneWindow();
+	g_MainWindow->AddSubWindow(sb_main);
+	g_MainWindow->AddSubWindow(CreateDepthWindow(sb_main));
+	*/
+
+	/*
+	GlutSubWindow *sb_model = CreateModelWindow();
+	g_MainWindow->AddSubWindow(sb_model);
+	g_MainWindow->AddSubWindow(CreateDepthWindow(sb_model));
+	*/
+	
+	/*
+	GlutSubWindow *sb_keyboard = CreateKeyboardWindow();
 	g_MainWindow->AddSubWindow(sb_keyboard);
 	g_MainWindow->AddSubWindow(CreateDepthWindow(sb_keyboard));
+	*/
 
+	GlutSubWindow *sb_photol = CreatePhotoSceneWindow(UV_LEFT, UV_SIZE);
+	g_MainWindow->AddSubWindow(sb_photol);
+	GlutSubWindow *sb_photor = CreatePhotoSceneWindow(UV_RIGHT, UV_SIZE);
+	g_MainWindow->AddSubWindow(sb_photor);
+
+	/*
+	GlutSubWindow *sb_simple = CreateSimpleWindow();
 	g_MainWindow->AddSubWindow(sb_simple);
 	g_MainWindow->AddSubWindow(CreateDepthWindow(sb_simple));
+	*/
 
 	glutMainLoop();
 	
 	return 0;
+}
+
+GlutSubSceneWindow *CreateMainSceneWindow()
+{
+	static const char *MAINSCENE_TEXTURES[] = {
+		"img/main_1.bmp",
+		"img/main_2.bmp",
+		"img/main_3.bmp"
+	};
+
+	GlutSubSceneWindow *subWindow = GlutWindow::CreareGlutSubSceneWindow(g_MainWindow);
+
+	// Setup scene
+	GLScene3D *scene = new GLScene3D(0, 0, 3.0f);
+	for (int i = 0; i < 3; i++)
+	{
+		GLuint texture = GlutWindow::LoadTexture(subWindow, MAINSCENE_TEXTURES[i]);
+		GLPlane3D *plane = new GLPlane3D(
+			glm::vec3(-4.0f + i * 3, 1.0f, 0.0f),
+			glm::vec3(1.0f, 1.0f, 1.0f),
+			2.0f);
+		plane->SetTexture(texture);
+		scene->AddObject(plane);
+	}
+
+	// Setup camera
+	CCamera *camera = new CCamera();
+	camera->SetPerspective(50.0, 1.0f, 0.5f, 25.0f);
+	camera->SetPos(0, 0, 15);
+	camera->SetAt(0, 0, 0);
+	camera->SetUp(0, 1, 0);
+
+	scene->SetCamera(camera);
+	scene->SetMouseVisiable(true);
+	scene->SetPhysicalMouseEnable(false);
+
+	subWindow->SetScene(scene);
+
+	return subWindow;
 }
 
 GlutSubSceneWindow *CreateKeyboardWindow()
@@ -314,6 +400,8 @@ GlutSubSceneWindow *CreateKeyboardWindow()
 	};
 
 	GlutSubSceneWindow *subWindow = GlutWindow::CreareGlutSubSceneWindow(g_MainWindow);
+
+	// Setup scene
 	GLScene3D *scene = new GLScene3D(0, 0, 3.0f);
 	for (int i = 0; i < 4; i++)
 	{
@@ -328,6 +416,82 @@ GlutSubSceneWindow *CreateKeyboardWindow()
 			scene->AddObject(plane);
 		}
 	}
+
+	// Setup camera
+	CCamera *camera = new CCamera();
+	camera->SetPerspective(50.0, 1.0f, 0.5f, 25.0f);
+	camera->SetPos(0, 0, 15);
+	camera->SetAt(0, 0, 0);
+	camera->SetUp(0, 1, 0);
+
+	scene->SetCamera(camera);
+	scene->SetMouseVisiable(true);
+	scene->SetPhysicalMouseEnable(false);
+
+	subWindow->SetScene(scene);
+
+	return subWindow;
+}
+
+GlutSubSceneWindow *CreateModelWindow()
+{
+	GlutSubSceneWindow *subWindow = GlutWindow::CreareGlutSubSceneWindow(g_MainWindow);	
+	GLScene3D *scene = new GLScene3D(0, 0, 3.0f);
+	try
+	{
+		ObjModel *model = new ObjModel();
+		string filename = FileUtil::ChooseFile();
+		model->Load((char*)filename.c_str());
+		scene->AddObject(model);
+
+		CCamera *camera = new CCamera();
+		camera->SetPerspective(45, 1, 0.1 * model->max_radius, 4 * model->max_radius);
+		camera->SetPos(model->center.x, 
+			model->center.y, 
+			model->center.z + 2 * model->max_radius * 1.3); //0,-35,300
+		camera->SetAt(model->center.x, 
+			model->center.y, 
+			model->center.z);
+		camera->SetUp(0, 1, 0);
+		scene->SetCamera(camera);
+
+		subWindow->SetScene(scene);
+	}
+	catch (int e)
+	{
+		delete subWindow;
+		delete scene;
+
+		printf("CreateModelWindow(): User close the window.\n");
+	}
+
+	return subWindow;
+}
+
+GlutSubSceneWindow *CreatePhotoSceneWindow(GLfloat *uvs, int size)
+{
+	GlutSubSceneWindow *subWindow = GlutWindow::CreareGlutSubSceneWindow(g_MainWindow);
+
+	// Setup scene
+	GLScene3D *scene = new GLScene3D(0, 0, 3.0f);
+	for (int i = 0; i < 3; i++)
+	{
+		GLuint texture = GlutWindow::LoadTexture(subWindow, IMGS[i]);
+		GLPlane3D *plane = new GLPlane3D(
+			glm::vec3(-1.0f, -1.0f, 0.0f),
+			glm::vec3(1.0f, 1.0f, 1.0f),
+			2.0f, 2.0f);
+
+		plane->SetTexture(texture, uvs, size);
+		plane->SetVisiable(true);
+		scene->AddObject(plane);
+	}
+
+	// Setup camera
+	scene->SetCamera(NULL);
+	scene->SetMouseVisiable(false);
+	scene->SetPhysicalMouseEnable(false);
+
 	subWindow->SetScene(scene);
 
 	return subWindow;
@@ -344,8 +508,8 @@ GlutSubSceneWindow *CreateSimpleWindow()
 	GlutSubSceneWindow *subWindow = GlutWindow::CreareGlutSubSceneWindow(g_MainWindow);
 	GLScene3D *scene = new GLScene3D(0, 0, 3.0f);
 	GLPlane3D *plane = new GLPlane3D(
-		glm::vec3(-2.0f, 1.0f, 0.0f),
-		glm::vec3(1.0f, 1.0f, 1.0f),
+		glm::vec3(-1.0f, -1.0f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 1.0f),
 		2.0f);
 	scene->AddObject(plane);
 	subWindow->SetScene(scene);

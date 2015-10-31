@@ -2,7 +2,31 @@
 
 #include <GL\freeglut.h>
 
-class CCamera{
+class GLCamera
+{
+public:
+	GLCamera() {};
+	~GLCamera() {};
+
+	virtual void UpdateViewport(int w, int h)
+	{
+		m_width = w;
+		m_height = h;
+	}
+
+	virtual void Update() = 0;
+	virtual void RotateX(float angle) = 0;
+	virtual void RotateY(float angle) = 0;
+	virtual void RotateZ(float angle) = 0;
+
+protected:
+	int m_width;
+	int m_height;
+};
+
+class CCamera
+	: public GLCamera
+{
 public:
 	CCamera();
 	~CCamera();
@@ -19,6 +43,7 @@ public:
 	void GetFront(float* front);
 	void GetUp(float* up);
 	void Zoom(float offset);
+	void UpdateViewport(int w, int h);
 	void Update();
 
 private:

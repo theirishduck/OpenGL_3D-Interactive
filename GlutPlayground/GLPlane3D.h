@@ -10,12 +10,14 @@ public:
 	GLPlane3D();
 	GLPlane3D(glm::vec3 pos, glm::vec3 color, glm::vec3 u, glm::vec3 v);
 	GLPlane3D(glm::vec3 pos, glm::vec3 color, GLfloat size);
+	GLPlane3D(glm::vec3 pos, glm::vec3 color, GLfloat width, GLfloat height);
 	~GLPlane3D();
 
 	int SetTexture(GLuint texture);
+	int SetTexture(GLuint texture, GLfloat *uvs, int size);
 
-	bool isOnto(vec3 point);
-	bool isInside(vec3 point);
+	bool IsOnto(vec3 point);
+	bool IsInside(vec3 point);
 
 	glm::vec3 GetU() const;
 	glm::vec3 GetV() const ;
@@ -25,7 +27,9 @@ private:
 	glm::vec3 m_u;
 	glm::vec3 m_v;
 	glm::vec3 m_normal;
-	
+
+	float m_touchDistance;
+
 	// 3D Plane E
 	GLfloat a;
 	GLfloat b;

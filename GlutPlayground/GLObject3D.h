@@ -16,6 +16,7 @@ public:
 	~GLObject3D();
 
 	virtual int RenderObject();
+	virtual bool IsOnto(glm::vec3 pos);
 
 	void AddVertex(glm::vec3 vertex);
 

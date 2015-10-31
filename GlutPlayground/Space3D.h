@@ -11,6 +11,7 @@ namespace Space3D
 {
 	vec3 PointProjectToPlane(Plane3D, vec3);
 	vec3 PointProjectToPlane(vec3 src, vec3 normal, vec3 point);
+	vec3 PointProjectToPlane(float perpendicular_distance, vec3 src, vec3 normal, vec3 point);
 	float PointToPlaneDistance(Plane3D, vec3);
 	vec3 ScreenToWorldCoord(int x, int y);
 }

@@ -1,6 +1,8 @@
 #include "GLPlane3D.h"
 #include "global.h"
 
+#define DEFUALT_TOUCH_DISTANCE 0.5f
+
 static const GLfloat PLANE_UVS[] = {
 	0.0f, 0.0f,
 	1.0f, 0.0f,
@@ -14,14 +16,26 @@ GLPlane3D::GLPlane3D()
 {
 }
 
-GLPlane3D::GLPlane3D(glm::vec3 pos, glm::vec3 color, glm::vec3 u, glm::vec3 v):
-	GLObject3D(pos, color, GL_QUADS), m_u(u), m_v(v)
+GLPlane3D::GLPlane3D(glm::vec3 pos, glm::vec3 color, glm::vec3 u, glm::vec3 v) :
+	GLObject3D(pos, color, GL_QUADS), 
+	m_u(u), m_v(v), 
+	m_touchDistance(DEFUALT_TOUCH_DISTANCE)
 {
 	Init(pos, u, v);
 }
 
-GLPlane3D::GLPlane3D(glm::vec3 pos, glm::vec3 color, GLfloat size):
-	GLObject3D(pos, color, GL_QUADS), m_u(X_AXIS * size), m_v(Y_AXIS * size)
+GLPlane3D::GLPlane3D(glm::vec3 pos, glm::vec3 color, GLfloat size) :
+	GLObject3D(pos, color, GL_QUADS),
+	m_u(X_AXIS * size), m_v(Y_AXIS * size),
+	m_touchDistance(DEFUALT_TOUCH_DISTANCE)
+{
+	Init(pos, m_u, m_v);
+}
+
+GLPlane3D::GLPlane3D(glm::vec3 pos, glm::vec3 color, GLfloat width, GLfloat height) :
+	GLObject3D(pos, color, GL_QUADS),
+	m_u(X_AXIS * width), m_v(Y_AXIS * height),
+	m_touchDistance(DEFUALT_TOUCH_DISTANCE)
 {
 	Init(pos, m_u, m_v);
 }
@@ -38,13 +52,23 @@ int GLPlane3D::SetTexture(GLuint texture)
 	return 0;
 }
 
-bool GLPlane3D::isOnto(vec3 point)
+int GLPlane3D::SetTexture(GLuint texture, GLfloat * uvs, int size)
 {
-	vec3 project_point = Space3D::PointProjectToPlane(m_pos, m_normal, point);
-	return isInside(project_point);
+	GLObject3D::SetTexture(texture);
+	GLObject3D::SetUVMap(uvs, size);
+
+	return 0;
 }
 
-bool GLPlane3D::isInside(vec3 point)
+bool GLPlane3D::IsOnto(vec3 point)
+{
+	float dis = dot((point - m_pos), m_normal);
+	vec3 project_point = Space3D::PointProjectToPlane(dis, m_pos, m_normal, point);
+
+	return IsInside(project_point) && dis < m_touchDistance;
+}
+
+bool GLPlane3D::IsInside(vec3 point)
 {
 	vec3 p1 = m_pos;
 	vec3 p2 = p1 + m_u;
@@ -84,8 +108,8 @@ void GLPlane3D::Init(glm::vec3 pos, glm::vec3 u, glm::vec3 v)
 	c = m_normal.z;
 	d = -(a * pos.x + b * pos.y + c * pos.z);
 
-	m_vertexs.push_back(glm::vec3(m_pos.x, m_pos.y, m_pos.z));
-	m_vertexs.push_back(glm::vec3(m_pos.x + m_u.x, m_pos.y + m_u.y, m_pos.z + m_u.z));
-	m_vertexs.push_back(glm::vec3(m_pos.x + m_u.x + m_v.x, m_pos.y + m_u.y + m_v.y, m_pos.z + m_u.z + m_v.z));
-	m_vertexs.push_back(glm::vec3(m_pos.x + m_v.x, m_pos.y + m_v.y, m_pos.z + m_v.z));
+	m_vertexs.push_back(glm::vec3(0, 0, 0));
+	m_vertexs.push_back(glm::vec3(m_u.x,  m_u.y,  m_u.z));
+	m_vertexs.push_back(glm::vec3(m_u.x + m_v.x, m_u.y + m_v.y, m_u.z + m_v.z));
+	m_vertexs.push_back(glm::vec3(m_v.x, m_v.y, m_v.z));
 }

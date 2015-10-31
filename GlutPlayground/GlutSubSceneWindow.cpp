@@ -4,6 +4,7 @@
 #include "FileUtil.h"
 #include "GlutMainWindow.h"
 #include "GlutSubSceneWindow.h"
+#include "GLScene3D.h"
 
 GlutSubSceneWindow *GlutWindow::CreareGlutSubSceneWindow(GlutMainWindow *mainWindow)
 {
@@ -87,31 +88,37 @@ int GlutSubSceneWindow::Display()
 
 int GlutSubSceneWindow::KeyboardHandler(unsigned char key, int x, int y)
 {
+	m_scene->KeyboardHandler(key, x, y);
 	return 0;
 }
 
 
 int GlutSubSceneWindow::SpecialKeyHandler(int key, int x, int y)
 {
+	m_scene->SpecialKeyHandler(key, x, y);
 	return 0;
 }
 
 int GlutSubSceneWindow::MouseHandler(int button, int state, int x, int y)
 {
+	m_scene->MouseHandler(button, state, x, y);
 	return 0;
 }
 
 int GlutSubSceneWindow::MouseWheelHandler(int wheel, int direction, int x, int y)
 {
+	m_scene->MouseWheelHandler(wheel, direction, x, y);
 	return 0;
 }
 
 int GlutSubSceneWindow::MotionHandler(int x, int y)
-{
+{	
+	m_scene->MotionHandler(x, y);
 	return 0;
 }
 
 int GlutSubSceneWindow::PassiveMotionHandler(int x, int y)
 {
+	m_scene->PassiveMotionHandler(x, y);
 	return 0;
 }

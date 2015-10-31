@@ -39,6 +39,8 @@ int GLObject3D::RenderObject()
 		return -1;
 
 	glColor3f(m_color.r, m_color.g, m_color.b);
+	glPushMatrix();
+	glTranslatef(m_pos.x, m_pos.y, m_pos.z);
 	if (m_texture == GLOBJECT3D_NO_TEXTURE)
 	{
 		RenderPlainObject();
@@ -47,8 +49,14 @@ int GLObject3D::RenderObject()
 	{
 		RenderTextureObject();
 	}
+	glPopMatrix();
 
 	return 0;
+}
+
+bool GLObject3D::IsOnto(glm::vec3 pos)
+{
+	return false; // For now, default
 }
 
 void GLObject3D::AddVertex(glm::vec3 vertex)
@@ -85,7 +93,7 @@ void GLObject3D::SetUVMap(const GLfloat * uvs, int size)
 {
 	if (size % 2 != 0)
 	{
-		std::cerr << "GLObject3D::SetUVMap(): passing uvs array is invalid." << std::endl;
+		std::cerr << "GLObject3D::SetUVMap(): passed uvs array is invalid." << std::endl;
 	}
 	else
 	{
@@ -131,7 +139,6 @@ int GLObject3D::RenderPlainObject()
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBegin(m_renderType);
-
 	for (std::vector<glm::vec3>::iterator it = m_vertexs.begin(); it != m_vertexs.end(); it++)
 	{
 		glVertex3f(it->x, it->y, it->z);

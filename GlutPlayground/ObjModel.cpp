@@ -11,13 +11,7 @@
 #define _USE_MATH_DEFINES
 #include "math.h"
 
-extern float fov;
-extern float aspect ; 
-extern float nearP ; 
-extern float farP ;
-extern float camera_shift;
-extern float aspect;
-extern float ball_pos_z;
+#include "FileUtil.h"
 
 ObjModel::ObjModel(): m_SpinEnable(false){
 	mode = 3;
@@ -69,23 +63,9 @@ void ObjModel::AddTriangle_1(int* p, int* uv, float* norm){
 	}
 }
 
-int ObjModel::LoadTexture(const char* filename){
-	IplImage* pImage = cvLoadImage(filename);
-	if(!pImage) return 0;
-	cvFlip(pImage);
-
-	GLuint texture = 0;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, pImage->width, pImage->height, 0, GL_BGR, GL_UNSIGNED_BYTE, pImage->imageData);
-
-    return texture;
+int ObjModel::LoadTexture(const char* filename)
+{
+    return FileUtil::LoadTextureFromFile(filename);
 }
 
 void ObjModel::LoadMaterial(const char* filename){

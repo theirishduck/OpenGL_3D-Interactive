@@ -5,9 +5,7 @@
 vec3 Space3D::PointProjectToPlane(Plane3D plane, vec3 point)
 {
 	float perpendicular_distance = dot((point - plane.m_Src), plane.m_Normal);
-	//printf("d = %f\n",perpendicular_distance);
 	vec3 project_point = point - perpendicular_distance * plane.m_Normal;
-	//printf("p = (%f, %f, %f)\n",project_point.x, project_point.y, project_point.z);
 	
 	return project_point;
 }
@@ -15,11 +13,14 @@ vec3 Space3D::PointProjectToPlane(Plane3D plane, vec3 point)
 vec3 Space3D::PointProjectToPlane(vec3 src, vec3 normal, vec3 point)
 {
 	float perpendicular_distance = dot((point - src), normal);
-	//printf("d = %f\n",perpendicular_distance);
 	vec3 project_point = point - perpendicular_distance * normal;
-	//printf("p = (%f, %f, %f)\n",project_point.x, project_point.y, project_point.z);
 
 	return project_point;
+}
+
+vec3 Space3D::PointProjectToPlane(float perpendicular_distance, vec3 src, vec3 normal, vec3 point)
+{
+	return point - perpendicular_distance * normal;
 }
 
 float Space3D::PointToPlaneDistance(Plane3D plane, vec3 point)
