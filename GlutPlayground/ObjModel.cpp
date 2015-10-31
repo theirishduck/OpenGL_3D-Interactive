@@ -21,6 +21,11 @@ ObjModel::~ObjModel(){
 
 }
 
+bool ObjModel::IsOnto(glm::vec3 mouse)
+{
+	return (length(mouse - glm::vec3(center.x, center.y, center.z)) <= max_radius + 5.0f);
+}
+
 void ObjModel::AddTriangle(int* p, int* uv, int* n){
 	for(int i=0;i<3;i++){
 		int pID = (p[i]-1)*3, nID = (n[i]-1)*3, uvID = (uv[i]-1)*2;

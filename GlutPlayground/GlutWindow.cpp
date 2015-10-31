@@ -4,6 +4,7 @@
 #include "GlutWindow.h"
 
 GlutWindow *GlutWindow::g_glutWindowPool[MAX_GLUTWINDOW] = { 0 };
+bool GlutWindow::g_enable[MAX_GLUTWINDOW] = { 0 };
 
 GlutWindow *GlutWindow::GetGlutWindow(GlutWindowDescriptor gd)
 {
@@ -21,12 +22,37 @@ bool GlutWindow::IsValid(GlutWindowDescriptor gd)
 	return (gd >= 0 && gd < MAX_GLUTWINDOW);
 }
 
+void GlutWindow::DeleteGlutWindow(GlutWindow *window)
+{
+	if (window != NULL)
+	{
+		GlutWindowDescriptor gd = window->m_gd;
+		if (IsValid(gd))
+		{
+			g_enable[gd] = false; // disable it. deletetion will be at next display
+		}
+	}
+	else
+	{
+		std::cerr << "GlutWindow::DeleteGlutWindow(): attempt to delete a null window." << std::endl;
+	}
+}
+
 void GlutWindow::GlutDisplay()
 {
 	GlutWindowDescriptor gd = glutGetWindow();
-	GlutWindow *window = GlutWindow::g_glutWindowPool[gd];
-	glutPostRedisplay(); // Continuous re-display instead of evnet driven re-display
-	window->Display();
+	GlutWindow *window = GlutWindow::GetGlutWindow(gd);
+	if(window != NULL && GlutWindow::g_enable[gd])
+	{
+		window->Display();
+		glutPostRedisplay(); // Continuous re-display instead of evnet driven re-display
+	}
+	else if(!GlutWindow::g_enable[gd])
+	{
+		delete window;
+		g_glutWindowPool[gd] = NULL;
+	}
+
 }
 
 void GlutWindow::GlutReshape(int w, int h)
@@ -110,11 +136,13 @@ void GlutWindow::GlutPassiveMotionHandler(int x, int y)
 GlutWindow::GlutWindow(int w, int h):
 	m_width(w), m_height(h), m_gd(-1)
 {
-
+	frame = 0;
+	lasttime = glutGet(GLUT_ELAPSED_TIME);
 }
 
 GlutWindow::~GlutWindow()
 {
+	glutDestroyWindow(m_gd);
 }
 
 int GlutWindow::Reshape(int w, int h)

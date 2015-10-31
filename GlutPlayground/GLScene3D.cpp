@@ -148,6 +148,7 @@ int GLScene3D::Update(int width, int height)
 		m_camera->Update();
 	}
 	
+	// Check event
 	for (std::vector<GLObject3D*>::iterator it = m_objects.begin(); it != m_objects.end(); it++)
 	{
 		GLObject3D* obj = *it;
@@ -155,10 +156,12 @@ int GLScene3D::Update(int width, int height)
 			continue;
 		if (obj->IsOnto(m_mouse))
 		{
+			obj->InvokeCallbackOnto();
 			obj->SetColor(0, 0, 1);
 		}
 		else
 		{
+			obj->ClearCallbackOntoInterrupt();
 			obj->SetColor(1, 1, 1);
 		}
 	}

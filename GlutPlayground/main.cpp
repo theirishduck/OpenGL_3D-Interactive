@@ -250,6 +250,9 @@ void OnChangeScene(int id)
 */
 
 #include <iostream>
+#include <sstream>
+#include <cstring>
+#include <cstdio>
 #include <cv.h>
 #include <cxcore.h>
 #include <highgui.h>
@@ -268,8 +271,26 @@ void OnChangeScene(int id)
 #include "FileUtil.h"
 #include "global.h"
 
+#include "TCPReceiver.h"
+
+#define MEASUREMENT
+
 #define DEFAULT_W 640
 #define DEFAULT_H 480
+#define DEFAULT_PORT 8000
+#define DEFAULT_BACKLOG 5
+#define DEFAULT_RECEIVE_RATE 50
+
+typedef struct Point3{
+	int x;
+	int y;
+	float z;
+
+	friend std::ostream& operator << (std::ostream& os, Point3 p)
+	{
+		return os << "(" << p.x << ", " << p.y << ", " << p.z << ")";
+	}
+}Point3;
 
 static GLfloat UV_LEFT[] = {
 	0.0f, 0.0f,
@@ -294,6 +315,8 @@ static const char *IMGS[] = {
 static const int UV_SIZE = 8;
 
 GlutMainWindow *g_MainWindow;
+TCPReceiver g_tcpReceiver;
+static int g_recvRate = 20;
 
 // Wrapper Functions
 GlutSubSceneWindow *CreateMainSceneWindow();
@@ -303,40 +326,50 @@ GlutSubSceneWindow *CreatePhotoSceneWindow(GLfloat *uvs, int size);
 GlutSubDepthWindow *CreateDepthWindow(GlutWindow *refWindow);
 GlutSubSceneWindow *CreateSimpleWindow();
 
+void MainSceneModelCallback();
+void MainSceneKeyboardUseCallback();
+void MainScenePhotoCallback();
+void MainWindowTimerFunc(int data);
+
+void InitTCPReceiver();
+
 int main(int argc, char *argv[])
 {
 	glutInit(&argc, argv);
-
-	g_MainWindow = GlutWindow::CreateGlutMainWindow(100, 100, DEFAULT_W, DEFAULT_H, 1, 2);
 	
-	/*
-	GlutSubWindow *sb_main = CreateMainSceneWindow();
-	g_MainWindow->AddSubWindow(sb_main);
-	g_MainWindow->AddSubWindow(CreateDepthWindow(sb_main));
-	*/
+	g_MainWindow = GlutWindow::CreateGlutMainWindow(100, 100, DEFAULT_W, DEFAULT_H, 1, 2);
 
-	/*
+	//GlutSubWindow *sb_main = CreateMainSceneWindow();
+	//g_MainWindow->AddSubWindow(sb_main);
+	//g_MainWindow->AddSubWindow(CreateDepthWindow(sb_main));
+
 	GlutSubWindow *sb_model = CreateModelWindow();
 	g_MainWindow->AddSubWindow(sb_model);
 	g_MainWindow->AddSubWindow(CreateDepthWindow(sb_model));
-	*/
+
+	//GlutSubWindow *sb_keyboard = CreateKeyboardWindow();
+	//g_MainWindow->AddSubWindow(sb_keyboard);
+	//g_MainWindow->AddSubWindow(CreateDepthWindow(sb_keyboard));
+
+	if (argc >= 2 && strcmp(argv[1], "-n") == 0)
+	{
+		if (argc >= 3)
+		{
+			std::stringstream ss(argv[2]);
+			ss >> g_recvRate;
+		}
+		g_MainWindow->SetTimerFunc(MainWindowTimerFunc, g_recvRate);
+		InitTCPReceiver();
+	}
 	
-	/*
-	GlutSubWindow *sb_keyboard = CreateKeyboardWindow();
-	g_MainWindow->AddSubWindow(sb_keyboard);
-	g_MainWindow->AddSubWindow(CreateDepthWindow(sb_keyboard));
-	*/
-
-	GlutSubWindow *sb_photol = CreatePhotoSceneWindow(UV_LEFT, UV_SIZE);
-	g_MainWindow->AddSubWindow(sb_photol);
-	GlutSubWindow *sb_photor = CreatePhotoSceneWindow(UV_RIGHT, UV_SIZE);
-	g_MainWindow->AddSubWindow(sb_photor);
-
-	/*
-	GlutSubWindow *sb_simple = CreateSimpleWindow();
-	g_MainWindow->AddSubWindow(sb_simple);
-	g_MainWindow->AddSubWindow(CreateDepthWindow(sb_simple));
-	*/
+	for (int i = 1; i < argc; i++)
+	{
+		if (strcmp(argv[i], "-f") == 0)
+		{
+			g_MainWindow->SetFullScreen();
+			break;
+		}
+	}
 
 	glutMainLoop();
 	
@@ -355,16 +388,21 @@ GlutSubSceneWindow *CreateMainSceneWindow()
 
 	// Setup scene
 	GLScene3D *scene = new GLScene3D(0, 0, 3.0f);
+	GLPlane3D *planes[3];
 	for (int i = 0; i < 3; i++)
 	{
 		GLuint texture = GlutWindow::LoadTexture(subWindow, MAINSCENE_TEXTURES[i]);
-		GLPlane3D *plane = new GLPlane3D(
+		planes[i] = new GLPlane3D(
 			glm::vec3(-4.0f + i * 3, 1.0f, 0.0f),
 			glm::vec3(1.0f, 1.0f, 1.0f),
 			2.0f);
-		plane->SetTexture(texture);
-		scene->AddObject(plane);
+		planes[i]->SetTexture(texture);
+		scene->AddObject(planes[i]);
 	}
+
+	planes[0]->SetCallbackOnto(MainSceneModelCallback);
+	planes[1]->SetCallbackOnto(MainSceneKeyboardUseCallback);
+	planes[2]->SetCallbackOnto(MainScenePhotoCallback);
 
 	// Setup camera
 	CCamera *camera = new CCamera();
@@ -454,6 +492,7 @@ GlutSubSceneWindow *CreateModelWindow()
 			model->center.z);
 		camera->SetUp(0, 1, 0);
 		scene->SetCamera(camera);
+		scene->SetPhysicalMouseEnable(true);
 
 		subWindow->SetScene(scene);
 	}
@@ -515,4 +554,88 @@ GlutSubSceneWindow *CreateSimpleWindow()
 	subWindow->SetScene(scene);
 	
 	return subWindow;
+}
+
+void MainSceneKeyboardUseCallback()
+{
+	std::cout << "MainSceneKeyboardUseCallback():" << std::endl;
+	GlutSubWindow *sb_keyboard = CreateKeyboardWindow();
+	g_MainWindow->ReplaceSubWindow(sb_keyboard, 0, 0);
+	g_MainWindow->ReplaceSubWindow(CreateDepthWindow(sb_keyboard), 0, 1);
+}
+
+void MainSceneModelCallback()
+{
+	std::cout << "MainSceneModelCallback():" << std::endl;
+	GlutSubWindow *sb_model = CreateModelWindow();
+	g_MainWindow->ReplaceSubWindow(sb_model, 0, 0);
+	g_MainWindow->ReplaceSubWindow(CreateDepthWindow(sb_model), 0, 1);
+}
+
+void MainScenePhotoCallback()
+{
+	std::cout << "MainScenePhotoCallback():" << std::endl;
+	GlutSubWindow *sb_photol = CreatePhotoSceneWindow(UV_LEFT, UV_SIZE);
+	g_MainWindow->ReplaceSubWindow(sb_photol, 0, 0);
+	GlutSubWindow *sb_photor = CreatePhotoSceneWindow(UV_RIGHT, UV_SIZE);
+	g_MainWindow->ReplaceSubWindow(sb_photor, 0, 1);
+}
+
+void MainWindowTimerFunc(int data)
+{
+	if (g_tcpReceiver.isClosed())
+	{
+		fprintf(stderr, "Handle_ModelViewer(): receiver is closed.\n");
+		return;
+	}
+
+	try
+	{
+		Point3 p;
+		g_tcpReceiver.Receive((char*)&p, sizeof(p));
+		
+		GlutSubWindow *targetWindow = g_MainWindow->GetSubWindow(0, 0);
+		targetWindow->MotionHandler(p.x, p.y);
+
+		//std::cout << p << std::endl;
+	}
+	catch (TCPReceiver_Exception e)
+	{
+		switch (e.e_type)
+		{
+			case TCPReceiver_Exception::NONBLOCKING:
+				break;
+			case TCPReceiver_Exception::DISCONNECT:
+				if (g_tcpReceiver.Close() < 0 || g_tcpReceiver.CloseSender() < 0)
+				{
+					fprintf(stderr, "MainWindowTimerFunc(): failed to close receiver.\n");
+					system("pause");
+					exit(-1);
+				}
+				printf("Disconnected from sender\n");
+				break;
+			default:
+				fprintf(stderr, "MainWindowTimerFunc(): unknown tcpreceiver_exception.\n");
+				break;
+		}
+	}
+	g_MainWindow->SetTimerFunc(MainWindowTimerFunc, g_recvRate);
+}
+
+void InitTCPReceiver()
+{
+	g_tcpReceiver = TCPReceiver(DEFAULT_PORT);
+	g_tcpReceiver.Listen(DEFAULT_BACKLOG);
+
+	printf("Waiting sender...\n");
+	bool result = g_tcpReceiver.Accept();
+	if (!result)
+	{
+		fprintf(stderr, "InitTCPReceiver(): failed to init receiver.\n");
+		system("pause");
+		exit(-1);
+	}
+
+	printf("Sender connected\n");
+	g_tcpReceiver.SetNonBlocking();
 }

@@ -128,6 +128,8 @@ public:
 		return m_ObjGroup.size();
 	}
 
+	bool IsOnto(glm::vec3 mouse);
+
 	float depth_min_temp;
 
 	struct float3

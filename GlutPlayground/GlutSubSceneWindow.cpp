@@ -27,6 +27,7 @@ GlutSubSceneWindow *GlutWindow::CreareGlutSubSceneWindow(GlutMainWindow *mainWin
 	else
 	{
 		GlutWindow::g_glutWindowPool[subWindowPtr->m_gd] = subWindowPtr;
+		GlutWindow::g_enable[subWindowPtr->m_gd] = true;
 		return subWindowPtr;
 	}
 }
@@ -52,7 +53,6 @@ GLuint GlutWindow::LoadTexture(GlutWindow *destWindow, const char * filename)
 GlutSubSceneWindow::GlutSubSceneWindow(GlutWindowDescriptor parentGd) :
 	GlutSubWindow(parentGd, 0, 0, 0, 0)
 {
-
 }
 
 GlutSubSceneWindow::~GlutSubSceneWindow()
@@ -81,7 +81,9 @@ int GlutSubSceneWindow::Display()
 		m_scene->Setup(m_width, m_height);
 		m_scene->Update(m_width, m_height);
 		m_scene->Render(m_width, m_height);
-
+		
+		MeasureSubWindow();
+		
 		return 0;
 	}
 }

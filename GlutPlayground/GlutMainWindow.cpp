@@ -18,18 +18,15 @@ GlutMainWindow *GlutWindow::CreateGlutMainWindow(int x, int y, int w, int h, int
 	else
 	{
 		GlutWindow::g_glutWindowPool[mainWindowPtr->m_gd] = mainWindowPtr;
+		GlutWindow::g_enable[mainWindowPtr->m_gd] = true;
 		return mainWindowPtr;
 	}
 }
 
-GlutMainWindow::GlutMainWindow(int w, int h): 
-	GlutWindow(w, h), m_nRows(1), m_nCols(1)
-{
-	Init(0, 0, w, h, 1, 1);
-}
-
 GlutMainWindow::GlutMainWindow(int x, int y, int w, int h, int nRows, int nCols) :
-	GlutWindow(w, h), m_nRows(nRows), m_nCols(nCols)
+	GlutWindow(w, h), 
+	m_nRows(nRows), 
+	m_nCols(nCols)
 {
 	Init(x, y, w, h, nRows, nCols);
 }
@@ -80,12 +77,39 @@ int GlutMainWindow::Layout(int w, int h)
 	return 0;
 }
 
-GlutSubWindow *GlutMainWindow::GetSubWindow(int row, int col)
+int GlutMainWindow::GetIndex(int row, int col)
 {
 	int index;
-	if (row < 0 || row >= m_nRows 
-		|| col < 0 || col >= m_nCols 
+	if (row < 0 || row >= m_nRows
+		|| col < 0 || col >= m_nCols
 		|| (index = m_nCols * row + col) >= m_subwindows.size())
+	{
+		return -1;
+	}
+
+	return index;
+}
+
+void GlutMainWindow::SetFullScreen()
+{
+	GlutWindowDescriptor curGd = glutGetWindow();
+	glutSetWindow(m_gd);
+	glutFullScreen();
+	glutSetWindow(curGd);
+}
+
+void GlutMainWindow::SetTimerFunc(TimerFunc timerFunc, double msec)
+{
+	GlutWindowDescriptor curGd = glutGetWindow();
+	glutSetWindow(m_gd);
+	glutTimerFunc(msec, timerFunc, m_gd);
+	glutSetWindow(curGd);
+}
+
+GlutSubWindow *GlutMainWindow::GetSubWindow(int row, int col)
+{
+	int index = GetIndex(row, col);
+	if (index < 0)
 	{
 		std::cerr << "GlutMainWindow::GetSubWindow(): attempt to access out of range data." << std::endl;
 		return NULL;
@@ -102,9 +126,26 @@ int GlutMainWindow::AddSubWindow(GlutSubWindow * subWindowPtr)
 		return -1;
 	}
 
+	m_subwindows.push_back(subWindowPtr);
 	Layout(m_width, m_height);
 
-	m_subwindows.push_back(subWindowPtr);
+	return 0;
+}
+
+int GlutMainWindow::ReplaceSubWindow(GlutSubWindow * subWindowPtr, int row, int col)
+{
+	int index = GetIndex(row, col);
+	if (index < 0)
+	{
+		std::cerr << "GlutMainWindow::ReplaceSubWindow(): attempt to replace out of range data." << std::endl;
+		return -1;
+	}
+	
+	// Free previous subwindow
+	GlutWindow::DeleteGlutWindow(m_subwindows[index]);
+
+	m_subwindows[index] = subWindowPtr;
+	Layout(m_width, m_height);
 
 	return 0;
 }
@@ -117,7 +158,7 @@ int GlutMainWindow::Display()
 		if (*it != NULL)
 		{
 			glutSetWindow((*it)->m_gd);
-			glutPostRedisplay();
+			//glutPostRedisplay();
 		}
 		else
 		{
@@ -125,6 +166,17 @@ int GlutMainWindow::Display()
 		}
 	}
 	glutSetWindow(curGd);
+
+
+	frame++;
+	int time = glutGet(GLUT_ELAPSED_TIME);
+	if (time - lasttime > 1000) {
+		printf("Window(%d): FPS:%4.2f\n",
+			m_gd,
+			frame*1000.0 / (time - lasttime));
+		lasttime = time;
+		frame = 0;
+	}
 
 	return 0;
 }
@@ -141,7 +193,6 @@ int GlutMainWindow::KeyboardHandler(unsigned char key, int x, int y)
 {
 	return 0;
 }
-
 
 int GlutMainWindow::SpecialKeyHandler(int key, int x, int y)
 {
@@ -166,6 +217,19 @@ int GlutMainWindow::MotionHandler(int x, int y)
 int GlutMainWindow::PassiveMotionHandler(int x, int y)
 {
 	return 0;
+}
+
+void GlutMainWindow::MeasureMainWindow()
+{
+	frame++;
+	int time = glutGet(GLUT_ELAPSED_TIME);
+	if (time - lasttime > 1000) {
+		printf("Window(%d): FPS:%4.2f\n",
+			m_gd,
+			frame*1000.0 / (time - lasttime));
+		lasttime = time;
+		frame = 0;
+	}
 }
 
 void GlutMainWindow::Init(int x, int y, int w, int h, int nRows, int nCols)

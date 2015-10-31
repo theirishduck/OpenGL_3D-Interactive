@@ -90,6 +90,9 @@
     <ClCompile Include="GlutSubWindow.cpp">
       <Filter>原始程式檔</Filter>
     </ClCompile>
+    <ClCompile Include="TCPReceiver.cpp">
+      <Filter>原始程式檔</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -165,6 +168,9 @@
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="GlutSubWindow.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPReceiver.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>

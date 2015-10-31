@@ -148,6 +148,7 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Space3D.cpp" />
     <ClCompile Include="Sphere3D.cpp" />
+    <ClCompile Include="TCPReceiver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -175,6 +176,7 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Space3D.h" />
     <ClInclude Include="Sphere3D.h" />
+    <ClInclude Include="TCPReceiver.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

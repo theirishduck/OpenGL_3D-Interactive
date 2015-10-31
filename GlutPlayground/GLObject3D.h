@@ -6,6 +6,10 @@
 
 #define GLOBJECT3D_NO_TEXTURE -1
 
+typedef void(*Callback)();
+
+class GLScene3D;
+
 class GLObject3D
 {
 public:
@@ -24,6 +28,9 @@ public:
 	void SetPos(GLfloat x, GLfloat y, GLfloat z);
 	void SetColor(GLfloat r, GLfloat g, GLfloat b);
 	void SetRenderType(int type);
+	void SetCallbackOnto(Callback callback);
+	void InvokeCallbackOnto();
+	void ClearCallbackOntoInterrupt();
 
 	bool GetVisiable() const;
 	glm::vec3 GetPos() const;
@@ -42,9 +49,12 @@ protected:
 
 	GLuint m_texture; // Consider only one textute for now
 
+	bool m_ontoInterruptFlag;
+	Callback m_callbackOnto;
+
 	void SetTexture(GLuint texture);
 	void SetUVMap(const GLfloat *uvs, int size);
-	
+
 	virtual int RenderTextureObject();
 	virtual int RenderPlainObject();
 };

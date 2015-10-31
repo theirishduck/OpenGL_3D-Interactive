@@ -4,19 +4,24 @@
 #include "GlutWindow.h"
 #include "GlutSubSceneWindow.h"
 
+#define DEFAULT_FPS 30
+
 class GlutMainWindow :
 	public GlutWindow
 {
 public:
-	GlutMainWindow(int w, int h);
 	GlutMainWindow(int x, int y, int w, int h, int nRows, int nCols);
 	~GlutMainWindow();
 
 	int Display();
 	int Reshape(int w, int h);
 	int AddSubWindow(GlutSubWindow *subWindowPtr);
+	int ReplaceSubWindow(GlutSubWindow *subWindowPtr, int row, int col);
 	GlutSubWindow *GetSubWindow(int row, int col);
 	int Layout(int w, int h);
+	int GetIndex(int row, int col);
+	void SetFullScreen();
+	void SetTimerFunc(TimerFunc timerFunc, double msec);
 
 	int KeyboardHandler(unsigned char key, int x, int y);
 	int SpecialKeyHandler(int key, int x, int y);
@@ -24,6 +29,8 @@ public:
 	int MouseWheelHandler(int wheel, int direction, int x, int y);
 	int MotionHandler(int x, int y);
 	int PassiveMotionHandler(int x, int y);
+
+	void MeasureMainWindow();
 
 private:
 	std::vector<GlutSubWindow*> m_subwindows;

@@ -1,31 +1,35 @@
 #include <iostream>
 #include "GLObject3D.h"
 
-GLObject3D::GLObject3D(): 
-	m_pos(glm::vec3(0, 0, 0)), m_color(glm::vec3(1.0f, 1.0f, 1.0f)), 
+GLObject3D::GLObject3D() :
+	m_pos(glm::vec3(0, 0, 0)), m_color(glm::vec3(1.0f, 1.0f, 1.0f)),
 	m_renderType(GL_TRIANGLES),
-	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE)
+	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
+	m_callbackOnto(NULL), m_ontoInterruptFlag(false)
 {
 }
 
 GLObject3D::GLObject3D(glm::vec3 pos) : 
 	m_pos(pos), m_color(glm::vec3(1.0f, 1.0f, 1.0f)), 
 	m_renderType(GL_TRIANGLES),
-	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE)
+	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
+	m_callbackOnto(NULL), m_ontoInterruptFlag(false)
 {
 }
 
 GLObject3D::GLObject3D(glm::vec3 pos, glm::vec3 color) : 
 	m_pos(pos), m_color(color), 
 	m_renderType(GL_TRIANGLES),
-	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE)
+	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
+	m_callbackOnto(NULL), m_ontoInterruptFlag(false)
 {
 }
 
 GLObject3D::GLObject3D(glm::vec3 pos, glm::vec3 color, int renderType) : 
 	m_pos(pos), m_color(color), 
 	m_renderType(renderType),
-	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE)
+	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
+	m_callbackOnto(NULL), m_ontoInterruptFlag(false)
 {
 }
 
@@ -107,6 +111,24 @@ void GLObject3D::SetUVMap(const GLfloat * uvs, int size)
 			size -= 2;
 		} while (size > 0);
 	}
+}
+
+void GLObject3D::SetCallbackOnto(Callback callback)
+{
+	m_callbackOnto = callback;
+}
+
+void GLObject3D::InvokeCallbackOnto()
+{
+	if (m_ontoInterruptFlag || m_callbackOnto == NULL)
+		return;
+	m_ontoInterruptFlag = true;
+	m_callbackOnto();
+}
+
+void GLObject3D::ClearCallbackOntoInterrupt()
+{
+	m_ontoInterruptFlag = false;
 }
 
 int GLObject3D::RenderTextureObject()
