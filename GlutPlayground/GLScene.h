@@ -1,10 +1,14 @@
 #pragma once
 
 #include "Camera.h"
+#include "global.h"
 #include <glm\glm.hpp>
+
+class GLDepthScene;
 
 class GLScene
 {
+	friend class GLDepthScene;
 public:
 	GLScene();
 	GLScene(float mx, float my, float mz);
@@ -26,9 +30,9 @@ public:
 	bool IsPhysicalMouseEnable() const;
 	void SetPhysicalMouseEnable(bool b);
 	
-	virtual int Render(int width, int height) = 0;
-	virtual int Setup(int width, int height);
-	virtual int Update(int width, int height);
+	virtual int Render(int x, int y, int width, int height) = 0;
+	virtual int Setup(int x, int y, int width, int height);
+	virtual int Update(int x, int y, int width, int height);
 	virtual void RenderMouse();
 
 	virtual int KeyboardHandler(unsigned char key, int x, int y) = 0;
@@ -47,6 +51,6 @@ protected:
 	glm::vec3 m_mouseColor;
 
 	GLCamera *m_camera;
-
+	Viewport m_viewport;
 };
 

@@ -16,9 +16,9 @@ public:
 	
 	int AddObject(GLObject3D *obj);
 
-	virtual int Render(int width, int height);
-	virtual int Setup(int width, int height);
-	virtual int Update(int width, int height);
+	virtual int Render(int x, int y, int width, int height);
+	virtual int Setup(int x, int y, int width, int height);
+	virtual int Update(int x, int y, int width, int height);
 
 	int KeyboardHandler(unsigned char key, int x, int y);
 	int SpecialKeyHandler(int key, int x, int y);

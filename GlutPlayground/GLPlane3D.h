@@ -16,8 +16,8 @@ public:
 	int SetTexture(GLuint texture);
 	int SetTexture(GLuint texture, GLfloat *uvs, int size);
 
-	bool IsOnto(vec3 point);
-	bool IsInside(vec3 point);
+	bool IsOnto(glm::vec3 point);
+	bool IsInside(glm::vec3 point);
 
 	glm::vec3 GetU() const;
 	glm::vec3 GetV() const ;

@@ -8,11 +8,11 @@ public:
 	GLCamera() {};
 	~GLCamera() {};
 
-	virtual void UpdateViewport(int w, int h)
+	virtual void UpdateViewport(int x, int y, int w, int h)
 	{
 		m_width = w;
 		m_height = h;
-		glViewport(0, 0, w, h);
+		glViewport(x, y, w, h);
 	}
 
 	virtual void Update() = 0;
@@ -44,7 +44,7 @@ public:
 	void GetFront(float* front);
 	void GetUp(float* up);
 	void Zoom(float offset);
-	void UpdateViewport(int w, int h);
+	void UpdateViewport(int x, int y, int w, int h);
 	void Update();
 
 private:

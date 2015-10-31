@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include <GL\freeglut.h>
 #include "global.h"
 #include "GLScene.h"
@@ -11,6 +13,7 @@ typedef void(*TimerFunc)(int data);
 class GlutMainWindow;
 class GlutSubWindow;
 class GlutSubSceneWindow;
+class GlutSubMultiSceneWindow;
 class GlutSubDepthWindow;
 
 class GlutWindow
@@ -27,6 +30,7 @@ public:
 	static bool IsValid(GlutWindowDescriptor gd);
 	static GlutMainWindow *CreateGlutMainWindow(int x, int y, int w, int h, int nRows, int nColsc);
 	static GlutSubSceneWindow *CreareGlutSubSceneWindow(GlutMainWindow *mainWindow);
+	static GlutSubMultiSceneWindow *CreateGlutSubMultiSceneWindow(GlutMainWindow *mainWindow, int nRow, int nCols);
 	static GlutSubDepthWindow *CreareGlutSubDepthWindow(GlutMainWindow *mainWindow, GlutWindow *refWindow);
 	static void DeleteGlutWindow(GlutWindow * window);
 	static GLuint LoadTexture(GlutWindow *destWindow, const char *filename);

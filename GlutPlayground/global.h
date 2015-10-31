@@ -9,6 +9,14 @@
 #define INVALID_GD -1
 
 typedef int GlutWindowDescriptor;
+typedef struct Viewport
+{
+	int x;
+	int y;
+	int w;
+	int h;
+
+}Viewport;
 
 extern const glm::vec3 COLOR_RED;
 extern const glm::vec3 COLOR_GREEN;

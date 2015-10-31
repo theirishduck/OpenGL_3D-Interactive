@@ -89,9 +89,9 @@ void CCamera::GetUp(float * up)
 	up[2] = m_FinalUp[2];
 }
 
-void CCamera::UpdateViewport(int w, int h)
+void CCamera::UpdateViewport(int x, int y, int w, int h)
 {
-	GLCamera::UpdateViewport(w, h);
+	GLCamera::UpdateViewport(x, y, w, h);
 	m_Aspect = (float)w / (float)h;
 }
 

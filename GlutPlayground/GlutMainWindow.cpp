@@ -221,6 +221,7 @@ int GlutMainWindow::PassiveMotionHandler(int x, int y)
 
 void GlutMainWindow::MeasureMainWindow()
 {
+#ifdef _MEASUREMENT
 	frame++;
 	int time = glutGet(GLUT_ELAPSED_TIME);
 	if (time - lasttime > 1000) {
@@ -230,6 +231,7 @@ void GlutMainWindow::MeasureMainWindow()
 		lasttime = time;
 		frame = 0;
 	}
+#endif
 }
 
 void GlutMainWindow::Init(int x, int y, int w, int h, int nRows, int nCols)

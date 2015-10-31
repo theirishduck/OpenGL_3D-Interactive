@@ -43,9 +43,11 @@ GLuint GlutWindow::LoadTexture(GlutWindow *destWindow, const char * filename)
 	{
 		GlutWindowDescriptor curGd = glutGetWindow();
 		glutSetWindow(destWindow->m_gd);
+
 		GLuint texture = FileUtil::LoadTextureFromFile(filename);
+		
 		glutSetWindow(curGd);
-		std::cout << "GlutWindow::LoadTexture(): load texture " << texture << " for window " << destWindow->m_gd << std::endl;
+		
 		return texture;
 	}
 }
@@ -78,10 +80,13 @@ int GlutSubSceneWindow::Display()
 	}
 	else
 	{
-		m_scene->Setup(m_width, m_height);
-		m_scene->Update(m_width, m_height);
-		m_scene->Render(m_width, m_height);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		m_scene->Setup(0, 0, m_width, m_height);
+		m_scene->Update(0, 0, m_width, m_height);
+		m_scene->Render(0, 0, m_width, m_height);
 		
+		glutSwapBuffers();
 		MeasureSubWindow();
 		
 		return 0;
@@ -93,7 +98,6 @@ int GlutSubSceneWindow::KeyboardHandler(unsigned char key, int x, int y)
 	m_scene->KeyboardHandler(key, x, y);
 	return 0;
 }
-
 
 int GlutSubSceneWindow::SpecialKeyHandler(int key, int x, int y)
 {

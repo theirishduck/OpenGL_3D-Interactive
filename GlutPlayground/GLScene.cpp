@@ -3,13 +3,14 @@
 #define DEFAULT_MOUSE_RADIUS 0.5f
 #define DEFAULT_MOUSE_COLOR glm::vec3(1.0f, 0.0f, 0.0f)
 
-GLScene::GLScene(): 
+GLScene::GLScene() :
 	m_mouse(glm::vec3(0, 0, 0)),
 	m_camera(NULL),
 	m_physicalMouseEnable(false),
 	m_mouseVisiable(false),
 	m_mouseColor(DEFAULT_MOUSE_COLOR),
-	m_mouseRadius(DEFAULT_MOUSE_RADIUS)
+	m_mouseRadius(DEFAULT_MOUSE_RADIUS),
+	m_viewport(Viewport{0, 0, 0, 0})
 {
 }
 
@@ -19,13 +20,15 @@ GLScene::GLScene(float mx, float my, float mz):
 	m_physicalMouseEnable(false),
 	m_mouseVisiable(false),
 	m_mouseColor(DEFAULT_MOUSE_COLOR),
-	m_mouseRadius(DEFAULT_MOUSE_RADIUS)
+	m_mouseRadius(DEFAULT_MOUSE_RADIUS),
+	m_viewport(Viewport{ 0, 0, 0, 0 })
 {
 }
 
 
 GLScene::~GLScene()
 {
+	delete m_camera;
 }
 
 glm::vec3 GLScene::GetMouse() const
@@ -65,6 +68,8 @@ GLCamera *GLScene::GetCamera() const
 
 void GLScene::SetCamera(GLCamera *camera)
 {
+	if (m_camera != NULL)
+		delete m_camera;
 	m_camera = camera;
 }
 
@@ -93,7 +98,7 @@ int GLScene::PassiveMotionHandler(int x, int y)
 	return 0;
 }
 
-int GLScene::Setup(int width, int height)
+int GLScene::Setup(int x, int y, int width, int height)
 {
 	if (m_camera == NULL)
 	{
@@ -101,16 +106,22 @@ int GLScene::Setup(int width, int height)
 		glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
+		glViewport(x, y, width, height);
 	}
-	else
+	else 
 	{
-		m_camera->UpdateViewport(width, height);
+		m_camera->UpdateViewport(x, y, width, height);
 	}
+
+	m_viewport.x = x;
+	m_viewport.y = y;
+	m_viewport.w = width;
+	m_viewport.h = height;
 
 	return 0;
 }
 
-int GLScene::Update(int width, int height)
+int GLScene::Update(int x, int y, int width, int height)
 {
 	if (m_camera != NULL)
 	{

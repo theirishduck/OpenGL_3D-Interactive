@@ -21,43 +21,13 @@
     <ClCompile Include="Camera.cpp">
       <Filter>原始程式檔</Filter>
     </ClCompile>
-    <ClCompile Include="Plane3D.cpp">
-      <Filter>原始程式檔</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderable.cpp">
-      <Filter>原始程式檔</Filter>
-    </ClCompile>
-    <ClCompile Include="Label3D.cpp">
-      <Filter>原始程式檔</Filter>
-    </ClCompile>
     <ClCompile Include="Space3D.cpp">
-      <Filter>原始程式檔</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>原始程式檔</Filter>
-    </ClCompile>
-    <ClCompile Include="MainwindowScene.cpp">
-      <Filter>原始程式檔</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelScene.cpp">
       <Filter>原始程式檔</Filter>
     </ClCompile>
     <ClCompile Include="FileUtil.cpp">
       <Filter>原始程式檔</Filter>
     </ClCompile>
     <ClCompile Include="ObjModel.cpp">
-      <Filter>原始程式檔</Filter>
-    </ClCompile>
-    <ClCompile Include="Sphere3D.cpp">
-      <Filter>原始程式檔</Filter>
-    </ClCompile>
-    <ClCompile Include="KeyboardScene.cpp">
-      <Filter>原始程式檔</Filter>
-    </ClCompile>
-    <ClCompile Include="PhotoScene.cpp">
-      <Filter>原始程式檔</Filter>
-    </ClCompile>
-    <ClCompile Include="ImagePlane.cpp">
       <Filter>原始程式檔</Filter>
     </ClCompile>
     <ClCompile Include="GlutWindow.cpp">
@@ -96,33 +66,15 @@
     <ClCompile Include="GlutSubMultiSceneWindow.cpp">
       <Filter>原始程式檔</Filter>
     </ClCompile>
+    <ClCompile Include="GLDepthScene.cpp">
+      <Filter>原始程式檔</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="Plane3D.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderable.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="Label3D.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="Environment.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
     <ClInclude Include="Space3D.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="MainwindowScene.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelScene.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="FileUtil.h">
@@ -131,19 +83,7 @@
     <ClInclude Include="ObjModel.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="Sphere3D.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
     <ClInclude Include="global.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="KeyboardScene.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="PhotoScene.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="ImagePlane.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="GlutWindow.h">
@@ -177,6 +117,9 @@
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="GlutSubMultiSceneWindow.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="GLDepthScene.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>

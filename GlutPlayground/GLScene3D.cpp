@@ -46,9 +46,9 @@ int GLScene3D::AddObject(GLObject3D *obj)
 
 
 
-int GLScene3D::Render(int width, int height)
+int GLScene3D::Render(int x, int y, int width, int height)
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glColor3f(1.0f, 1.0f, 1.0f);
 
 	if (m_mouseVisiable)
@@ -61,14 +61,14 @@ int GLScene3D::Render(int width, int height)
 		(*it)->RenderObject();
 	}
 
-	glutSwapBuffers();
+	//glutSwapBuffers();
 
 	return 0;
 }
 
-int GLScene3D::Setup(int width, int height)
+int GLScene3D::Setup(int x, int y, int width, int height)
 {
-	GLScene::Setup(width, height);
+	GLScene::Setup(x, y, width, height);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, m_diffuse);
 	glLightfv(GL_LIGHT1, GL_AMBIENT, m_ambient);
@@ -88,9 +88,10 @@ int GLScene3D::Setup(int width, int height)
 	return 0;
 }
 
-int GLScene3D::Update(int width, int height)
+int GLScene3D::Update(int x, int y, int width, int height)
 {
-	GLScene::Update(width, height);
+	GLScene::Update(x, y, width, height);
+
 	// Check event
 	for (std::vector<GLObject3D*>::iterator it = m_objects.begin(); it != m_objects.end(); it++)
 	{
