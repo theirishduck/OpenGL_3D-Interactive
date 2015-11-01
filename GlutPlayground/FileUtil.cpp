@@ -52,8 +52,8 @@ GLuint FileUtil::LoadTextureFromFile(const char *filename)
 			throw - 1;
 		}
 
-		glGenTextures(1, &texture);
 		glEnable(GL_TEXTURE_2D);
+		glGenTextures(1, &texture);
 		glBindTexture(GL_TEXTURE_2D, texture);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,

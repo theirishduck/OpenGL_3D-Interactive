@@ -13,6 +13,8 @@
 
 #include "FileUtil.h"
 
+#define DEFAULT_ONTO_DISTANCE 0.5f
+
 ObjModel::ObjModel(): m_SpinEnable(false){
 	mode = 3;
 }
@@ -23,7 +25,7 @@ ObjModel::~ObjModel(){
 
 bool ObjModel::IsOnto(glm::vec3 mouse)
 {
-	return (length(mouse - glm::vec3(center.x, center.y, center.z)) <= max_radius + 5.0f);
+	return mouse.z <= 0.5f;
 }
 
 void ObjModel::AddTriangle(int* p, int* uv, int* n){

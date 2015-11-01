@@ -47,6 +47,11 @@ void GlutSubMultiSceneWindow::AddScene(GLScene * scene)
 	m_scenes.push_back(scene);
 }
 
+void GlutSubMultiSceneWindow::ReplaceSceneWithouDelete(std::vector<GLScene*>& scenes)
+{
+
+}
+
 GLScene * GlutSubMultiSceneWindow::GetScene(int index) const
 {
 	if (index < m_scenes.size())

@@ -59,18 +59,24 @@ void CCamera::SetAt(float x, float y, float z)
 
 void CCamera::RotateX(float angle)
 {
+	if (!m_enableRotate)
+		return;
 	m_RotateX += angle;
 	Update();
 }
 
 void CCamera::RotateY(float angle)
 {
+	if (!m_enableRotate)
+		return;
 	m_RotateY += angle;
 	Update();
 }
 
 void CCamera::RotateZ(float angle)
 {
+	if (!m_enableRotate)
+		return;
 	m_RotateZ += angle;
 	Update();
 }

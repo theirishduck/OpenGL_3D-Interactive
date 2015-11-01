@@ -5,7 +5,9 @@ GLObject3D::GLObject3D() :
 	m_pos(glm::vec3(0, 0, 0)), m_color(glm::vec3(1.0f, 1.0f, 1.0f)),
 	m_renderType(GL_TRIANGLES),
 	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
-	m_callbackOnto(NULL), m_ontoInterruptFlag(false)
+	m_callbackOnto(NULL),
+	m_callbackOntoExit(NULL),
+	m_ontoFlag(false)
 {
 }
 
@@ -13,7 +15,9 @@ GLObject3D::GLObject3D(glm::vec3 pos) :
 	m_pos(pos), m_color(glm::vec3(1.0f, 1.0f, 1.0f)), 
 	m_renderType(GL_TRIANGLES),
 	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
-	m_callbackOnto(NULL), m_ontoInterruptFlag(false)
+	m_callbackOnto(NULL), 
+	m_callbackOntoExit(NULL), 
+	m_ontoFlag(false)
 {
 }
 
@@ -21,7 +25,9 @@ GLObject3D::GLObject3D(glm::vec3 pos, glm::vec3 color) :
 	m_pos(pos), m_color(color), 
 	m_renderType(GL_TRIANGLES),
 	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
-	m_callbackOnto(NULL), m_ontoInterruptFlag(false)
+	m_callbackOnto(NULL),
+	m_callbackOntoExit(NULL),
+	m_ontoFlag(false)
 {
 }
 
@@ -29,7 +35,9 @@ GLObject3D::GLObject3D(glm::vec3 pos, glm::vec3 color, int renderType) :
 	m_pos(pos), m_color(color), 
 	m_renderType(renderType),
 	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
-	m_callbackOnto(NULL), m_ontoInterruptFlag(false)
+	m_callbackOnto(NULL),
+	m_callbackOntoExit(NULL),
+	m_ontoFlag(false)
 {
 }
 
@@ -113,22 +121,32 @@ void GLObject3D::SetUVMap(const GLfloat * uvs, int size)
 	}
 }
 
-void GLObject3D::SetCallbackOnto(Callback callback)
+void GLObject3D::SetCallbackOnto(CallbackOnto callback)
 {
 	m_callbackOnto = callback;
 }
 
-void GLObject3D::InvokeCallbackOnto()
+void GLObject3D::SetCallbackOntoExit(CallbackOnto callback)
 {
-	if (m_ontoInterruptFlag || m_callbackOnto == NULL)
-		return;
-	m_ontoInterruptFlag = true;
-	m_callbackOnto();
+	m_callbackOntoExit = callback;
 }
 
-void GLObject3D::ClearCallbackOntoInterrupt()
+void GLObject3D::InvokeCallbackOnto(GLScene3D *scene)
 {
-	m_ontoInterruptFlag = false;
+	if (m_callbackOnto != NULL && !m_ontoFlag)
+		m_callbackOnto(scene, this);
+
+	if (!m_ontoFlag)
+		m_ontoFlag = true;
+}
+
+void GLObject3D::InvokeCallbackOntoExit(GLScene3D * scene)
+{
+	if (m_callbackOntoExit != NULL && m_ontoFlag)
+		m_callbackOntoExit(scene, this);
+
+	if (m_ontoFlag)
+		m_ontoFlag = false;
 }
 
 int GLObject3D::RenderTextureObject()

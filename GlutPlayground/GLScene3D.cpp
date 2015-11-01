@@ -2,6 +2,7 @@
 #include <GL\freeglut.h>
 #include "GLObject3D.h"
 #include "GLScene3D.h"
+#include "Space3D.h"
 
 GLScene3D::GLScene3D()
 {
@@ -100,13 +101,11 @@ int GLScene3D::Update(int x, int y, int width, int height)
 			continue;
 		if (obj->IsOnto(m_mouse))
 		{
-			obj->InvokeCallbackOnto();
-			obj->SetColor(0, 0, 1);
+			obj->InvokeCallbackOnto(this);
 		}
 		else
 		{
-			obj->ClearCallbackOntoInterrupt();
-			obj->SetColor(1, 1, 1);
+			obj->InvokeCallbackOntoExit(this);
 		}
 	}
 
@@ -151,6 +150,7 @@ int GLScene3D::MouseHandler(int button, int state, int x, int y)
 {
 	if (m_physicalMouseEnable)
 	{
+		//OnMouseMove(x / m_spaceScale, y / m_spaceScale);
 		m_mouse.x = x;
 		m_mouse.y = y;
 	}
@@ -160,24 +160,24 @@ int GLScene3D::MouseHandler(int button, int state, int x, int y)
 
 int GLScene3D::MouseWheelHandler(int wheel, int direction, int x, int y)
 {
-	if (m_physicalMouseEnable)
-	{
-		(direction > 0) ? m_mouse.z += 0.1f : m_mouse.z -= 0.1f;
-	}
 	(direction > 0) ? m_mouse.z += 0.1f : m_mouse.z -= 0.1f;
-
+	printf("Depth: %f\n",m_mouse.z);
+	
 	return 0;
 }
 
 int GLScene3D::MotionHandler(int x, int y)
 {
-	if (m_camera != NULL && m_physicalMouseEnable)
+	if (m_camera != NULL)
 	{
-		m_camera->RotateY(0.01 * (m_mouse.x - x));
-		m_camera->RotateX(0.01 * (y - m_mouse.y));
-
-		m_mouse.x = x;
-		m_mouse.y = y;
+		if (m_physicalMouseEnable)
+		{
+			OnMouseMove(x, y);
+		}
+		else
+		{
+			OnMouseMove(x / m_spaceScale, y / m_spaceScale);
+		}
 	}
 
 	return 0;
@@ -185,5 +185,25 @@ int GLScene3D::MotionHandler(int x, int y)
 
 int GLScene3D::PassiveMotionHandler(int x, int y)
 {
+	return 0;
+}
+
+int GLScene3D::OnMouseMove(float x, float y)
+{
+	if (m_camera != NULL)
+	{
+		if (m_physicalMouseEnable)
+		{
+			m_camera->RotateY(0.01f * (m_mouse.x - x));
+			m_camera->RotateX(0.01f * (y - m_mouse.y));
+		}
+		else if(IsInSpace(x, y, m_mouse.z / m_spaceScale))
+		{
+			GLScene::OnMouseMove(x, y);
+			m_camera->RotateY(10.0f * -m_mouseDelta.x);
+			m_camera->RotateX(10.0f * (y - m_mouseDelta.y));
+		}
+	}
+
 	return 0;
 }

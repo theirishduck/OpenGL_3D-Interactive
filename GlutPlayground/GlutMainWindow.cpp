@@ -158,25 +158,14 @@ int GlutMainWindow::Display()
 		if (*it != NULL)
 		{
 			glutSetWindow((*it)->m_gd);
-			//glutPostRedisplay();
 		}
 		else
 		{
 			std::cerr << "GlutMainWindow::Display(): attempt to display null pointer." << std::endl;
 		}
 	}
+	MeasureMainWindow();
 	glutSetWindow(curGd);
-
-
-	frame++;
-	int time = glutGet(GLUT_ELAPSED_TIME);
-	if (time - lasttime > 1000) {
-		printf("Window(%d): FPS:%4.2f\n",
-			m_gd,
-			frame*1000.0 / (time - lasttime));
-		lasttime = time;
-		frame = 0;
-	}
 
 	return 0;
 }

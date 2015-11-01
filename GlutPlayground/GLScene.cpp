@@ -5,6 +5,8 @@
 
 GLScene::GLScene() :
 	m_mouse(glm::vec3(0, 0, 0)),
+	m_origin(glm::vec3(0, 0, 0)),
+	m_spaceScale(1.0f),
 	m_camera(NULL),
 	m_physicalMouseEnable(false),
 	m_mouseVisiable(false),
@@ -16,6 +18,8 @@ GLScene::GLScene() :
 
 GLScene::GLScene(float mx, float my, float mz):
 	m_mouse(glm::vec3(mx, my, mz)),
+	m_origin(glm::vec3(mx, my, mz)),
+	m_spaceScale(1.0f),
 	m_camera(NULL),
 	m_physicalMouseEnable(false),
 	m_mouseVisiable(false),
@@ -36,34 +40,29 @@ glm::vec3 GLScene::GetMouse() const
 	return m_mouse;
 }
 
-void GLScene::SetMouse(float x, float y, float z)
+void GLScene::ResetMouse()
 {
-	SetMouse(glm::vec3(x, y, z));
+	m_mouse = m_origin;
 }
 
-void GLScene::SetMouse(glm::vec3 mouse)
+void GLScene::SetOrigin(float x, float y, float z)
 {
-	m_mouse = mouse;
+	m_origin = glm::vec3(x, y, z);
 }
 
-void GLScene::SetMouseX(float x)
+void GLScene::SetSpaceScale(float scale)
 {
-	m_mouse.x = x;
-}
-
-void GLScene::SetMouseY(float y)
-{
-	m_mouse.y = y;
-}
-
-void GLScene::SetMouseZ(float z)
-{
-	m_mouse.z = z;
+	m_spaceScale = scale;
 }
 
 GLCamera *GLScene::GetCamera() const
 {
 	return m_camera;
+}
+
+void GLScene::SetMouseMoveCallback(MouseMoveCallback callback)
+{
+	m_mouseMoveCallback = callback;
 }
 
 void GLScene::SetCamera(GLCamera *camera)
@@ -76,6 +75,12 @@ void GLScene::SetCamera(GLCamera *camera)
 bool GLScene::IsMouseVisiable() const
 {
 	return m_mouseVisiable;
+}
+
+bool GLScene::IsMouseInViewport(int x, int y) const
+{
+	return (x >= m_viewport.x && x < m_viewport.w &&
+		y >= m_viewport.y && y < m_viewport.h);
 }
 
 void GLScene::SetMouseVisiable(bool b)
@@ -96,6 +101,38 @@ void GLScene::SetPhysicalMouseEnable(bool b)
 int GLScene::PassiveMotionHandler(int x, int y)
 {
 	return 0;
+}
+
+int GLScene::InvokeCallbackMouseMove(float dx, float dy, float dz)
+{
+	if (m_mouseMoveCallback != NULL)
+	{
+		m_mouseMoveCallback(this, dx, dy, dz);
+	}
+
+	return 0;
+}
+
+int GLScene::OnMouseMove(float x, float y)
+{
+	if (IsInSpace(x, y, m_mouse.z / m_spaceScale))
+	{
+		m_mouseDelta.x = x * m_spaceScale - m_mouse.x;
+		m_mouseDelta.y = y * m_spaceScale - m_mouse.y;
+		m_mouse.x = x * m_spaceScale;
+		m_mouse.y = y * m_spaceScale;
+
+		InvokeCallbackMouseMove(m_mouseDelta.x, m_mouseDelta.y, m_mouseDelta.z);
+	}
+
+	return 0;
+}
+
+bool GLScene::IsInSpace(float x, float y, float z)
+{
+	return (x >= -1.0f && x <= 1.0f &&
+		y >= -1.0f && y <= 1.0f &&
+		z >= -1.0f && z <= 1.0f);
 }
 
 int GLScene::Setup(int x, int y, int width, int height)
