@@ -31,7 +31,8 @@ GlutSubMultiSceneWindow *GlutWindow::CreateGlutSubMultiSceneWindow(GlutMainWindo
 GlutSubMultiSceneWindow::GlutSubMultiSceneWindow(GlutWindowDescriptor parentGd, int nRows, int nCols)
 	: GlutSubWindow(parentGd, 0, 0, 0, 0), 
 	m_nRows(nRows),
-	m_nCols(nCols)
+	m_nCols(nCols),
+	m_startIndex(0)
 {
 }
 
@@ -47,9 +48,12 @@ void GlutSubMultiSceneWindow::AddScene(GLScene * scene)
 	m_scenes.push_back(scene);
 }
 
-void GlutSubMultiSceneWindow::ReplaceSceneWithouDelete(std::vector<GLScene*>& scenes)
+void GlutSubMultiSceneWindow::AddScene(std::vector<GLScene*>& scenes)
 {
-
+	for (std::vector<GLScene*>::iterator it = scenes.begin(); it != scenes.end(); it++)
+	{
+		m_scenes.push_back(*it);
+	}
 }
 
 GLScene * GlutSubMultiSceneWindow::GetScene(int index) const
@@ -65,6 +69,21 @@ GLScene * GlutSubMultiSceneWindow::GetScene(int index) const
 	}
 }
 
+GLScene * GlutSubMultiSceneWindow::GetStartScene()
+{
+	return m_scenes[m_startIndex];
+}
+
+int GlutSubMultiSceneWindow::SetStartSceneIndex(int index)
+{
+	if (index >= m_scenes.size())
+		return -1;
+
+	m_startIndex = index;
+
+	return 0;
+}
+
 int GlutSubMultiSceneWindow::Display()
 {
 	int wStep = m_width / m_nCols;
@@ -73,12 +92,12 @@ int GlutSubMultiSceneWindow::Display()
 	int col = 0;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	for (std::vector<GLScene*>::iterator it = m_scenes.begin(); it != m_scenes.end(); it++)
+	for (int i = m_startIndex; i < m_scenes.size(); i++)
 	{
 		if (row >= m_nRows || col >= m_nCols)
 			break;
 
-		GLScene *scene = *it;
+		GLScene *scene = m_scenes[i];
 		if (scene == NULL)
 		{
 			std::cerr << "GlutSubSceneWindow::Display(): ID = " << m_gd << ", scene is null." << std::endl;
@@ -104,48 +123,60 @@ int GlutSubMultiSceneWindow::Display()
 
 int GlutSubMultiSceneWindow::KeyboardHandler(unsigned char key, int x, int y)
 {
-	for (std::vector<GLScene*>::iterator it = m_scenes.begin(); it != m_scenes.end(); it++)
+	int num = 0;
+	for (std::vector<GLScene*>::iterator it = m_scenes.begin() + m_startIndex;
+	it != m_scenes.end() && num < m_nRows * m_nCols; it++)
 		if (*it != NULL)
-			(*it)->KeyboardHandler(key, x, y);
+			(*it)->KeyboardHandler(key, x, y), num++;
 	return 0;
 }
 
 int GlutSubMultiSceneWindow::SpecialKeyHandler(int key, int x, int y)
 {
-	for (std::vector<GLScene*>::iterator it = m_scenes.begin(); it != m_scenes.end(); it++)
+	int num = 0;
+	for (std::vector<GLScene*>::iterator it = m_scenes.begin() + m_startIndex; 
+	it != m_scenes.end() && num < m_nRows * m_nCols; it++)
 		if (*it != NULL)
-			(*it)->SpecialKeyHandler(key, x, y);
+			(*it)->SpecialKeyHandler(key, x, y), num++;
 	return 0;
 }
 
 int GlutSubMultiSceneWindow::MouseHandler(int button, int state, int x, int y)
 {
-	for (std::vector<GLScene*>::iterator it = m_scenes.begin(); it != m_scenes.end(); it++)
+	int num = 0;
+	for (std::vector<GLScene*>::iterator it = m_scenes.begin() + m_startIndex; 
+	it != m_scenes.end() && num < m_nRows * m_nCols; it++)
 		if (*it != NULL)
-			(*it)->MouseHandler(button, state, x, y);
+			(*it)->MouseHandler(button, state, x, y), num++;
 	return 0;
 }
 
 int GlutSubMultiSceneWindow::MouseWheelHandler(int wheel, int direction, int x, int y)
 {
-	for (std::vector<GLScene*>::iterator it = m_scenes.begin(); it != m_scenes.end(); it++)
+	int num = 0;
+	for (std::vector<GLScene*>::iterator it = m_scenes.begin() + m_startIndex; 
+	it != m_scenes.end() && num < m_nRows * m_nCols; it++)
 		if (*it != NULL)
-			(*it)->MouseWheelHandler(wheel, direction, x, y);
+			(*it)->MouseWheelHandler(wheel, direction, x, y), num++;
 	return 0;
 }
 
 int GlutSubMultiSceneWindow::MotionHandler(int x, int y)
 {
-	for (std::vector<GLScene*>::iterator it = m_scenes.begin(); it != m_scenes.end(); it++)
+	int num = 0;
+	for (std::vector<GLScene*>::iterator it = m_scenes.begin() + m_startIndex; 
+	it != m_scenes.end() && num < m_nRows * m_nCols; it++)
 		if (*it != NULL)
-			(*it)->MotionHandler(x, y);
+			(*it)->MotionHandler(x, y), num++;
 	return 0;
 }
 
 int GlutSubMultiSceneWindow::PassiveMotionHandler(int x, int y)
 {
-	for (std::vector<GLScene*>::iterator it = m_scenes.begin(); it != m_scenes.end(); it++)
+	int num = 0;
+	for (std::vector<GLScene*>::iterator it = m_scenes.begin() + m_startIndex; 
+	it != m_scenes.end() && num < m_nRows * m_nCols; it++)
 		if (*it != NULL)
-			(*it)->PassiveMotionHandler(x, y);
+			(*it)->PassiveMotionHandler(x, y), num++;
 	return 0;
 }

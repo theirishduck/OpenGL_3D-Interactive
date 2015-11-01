@@ -40,6 +40,11 @@ glm::vec3 GLScene::GetMouse() const
 	return m_mouse;
 }
 
+glm::vec3 GLScene::GetNormalizeMouse() const
+{
+	return m_mouse / m_spaceScale;
+}
+
 void GLScene::ResetMouse()
 {
 	m_mouse = m_origin;

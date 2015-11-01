@@ -13,7 +13,11 @@ public:
 	~GlutSubMultiSceneWindow();
 
 	void AddScene(GLScene *scene);
+	void AddScene(std::vector<GLScene*>& scenes);
 	GLScene *GetScene(int index) const;
+	GLScene *GetStartScene();
+
+	int SetStartSceneIndex(int index);
 
 	int Display();
 	int KeyboardHandler(unsigned char key, int x, int y);
@@ -26,6 +30,7 @@ public:
 private:
 	int m_nRows;
 	int m_nCols;
+	int m_startIndex;
 
 	std::vector<GLScene*> m_scenes;
 };

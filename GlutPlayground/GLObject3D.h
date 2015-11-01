@@ -6,9 +6,9 @@
 
 #define GLOBJECT3D_NO_TEXTURE -1
 
-typedef void(*Callback)();
-
 class GLScene3D;
+class GLObject3D;
+typedef void(*CallbackOnto)(GLScene3D *, GLObject3D *);
 
 class GLObject3D
 {
@@ -28,9 +28,10 @@ public:
 	void SetPos(GLfloat x, GLfloat y, GLfloat z);
 	void SetColor(GLfloat r, GLfloat g, GLfloat b);
 	void SetRenderType(int type);
-	void SetCallbackOnto(Callback callback);
-	void InvokeCallbackOnto();
-	void ClearCallbackOntoInterrupt();
+	void SetCallbackOnto(CallbackOnto callback);
+	void SetCallbackOntoExit(CallbackOnto callback);
+	void InvokeCallbackOnto(GLScene3D *scene);
+	void InvokeCallbackOntoExit(GLScene3D *scene);
 
 	bool GetVisiable() const;
 	glm::vec3 GetPos() const;
@@ -49,8 +50,9 @@ protected:
 
 	GLuint m_texture; // Consider only one textute for now
 
-	bool m_ontoInterruptFlag;
-	Callback m_callbackOnto;
+	bool m_ontoFlag;
+	CallbackOnto m_callbackOnto;
+	CallbackOnto m_callbackOntoExit;
 
 	void SetTexture(GLuint texture);
 	void SetUVMap(const GLfloat *uvs, int size);

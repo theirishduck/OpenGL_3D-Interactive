@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm\glm.hpp>
+#include <iostream>
 
 #define MAINWINDOW_SCENE_ID 0
 #define MODEL_SCENE_ID 1
@@ -24,6 +25,8 @@ extern const glm::vec3 COLOR_BLUE;
 extern const glm::vec3 X_AXIS;
 extern const glm::vec3 Y_AXIS;
 extern const glm::vec3 Z_AXIS;
+
+std::ostream& operator <<(std::ostream& os, glm::vec3 v);
 
 namespace Config
 {

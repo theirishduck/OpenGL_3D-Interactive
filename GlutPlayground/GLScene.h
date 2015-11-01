@@ -4,7 +4,10 @@
 #include "global.h"
 #include <glm\glm.hpp>
 
+class GLScene;
 class GLDepthScene;
+
+typedef void(*MouseMoveCallback)(GLScene *scene, float dx, float dy, float dz);
 
 class GLScene
 {
@@ -16,16 +19,20 @@ public:
 
 public:
 	glm::vec3 GetMouse() const;
-	void SetMouse(float x, float y, float z);
-	void SetMouse(glm::vec3 mouse);
-	void SetMouseX(float x);
-	void SetMouseY(float y);
-	void SetMouseZ(float z);
+	glm::vec3 GetNormalizeMouse() const;
+	void ResetMouse(); // Set mouse to the origin of the scene
+
+	void SetOrigin(float x, float y, float z);
+	void SetSpaceScale(float scale);
 
 	void SetCamera(GLCamera *camera);
 	GLCamera *GetCamera() const;
 
+	void SetMouseMoveCallback(MouseMoveCallback callback);
+
 	bool IsMouseVisiable() const;
+	bool IsMouseInViewport(int x, int y) const;
+	bool IsInSpace(float x, float y, float z);
 	void SetMouseVisiable(bool b);
 	bool IsPhysicalMouseEnable() const;
 	void SetPhysicalMouseEnable(bool b);
@@ -42,9 +49,18 @@ public:
 	virtual int MotionHandler(int x, int y) = 0;
 	virtual int PassiveMotionHandler(int x, int y) = 0;
 
+	virtual int InvokeCallbackMouseMove(float dx, float dy, float dz);
+	virtual int OnMouseMove(float x, float y); // NOTE: mouse is virtual 3d mouse
+
 protected:
+	glm::vec3 m_origin;
+	float m_spaceScale; // Consider a scene as a box, this is its dimension length
+
 	glm::vec3 m_mouse;
+	glm::vec3 m_mouseDelta;
 	
+	MouseMoveCallback m_mouseMoveCallback;
+
 	bool m_physicalMouseEnable;
 	bool m_mouseVisiable;
 	float m_mouseRadius;
