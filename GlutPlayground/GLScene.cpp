@@ -118,14 +118,16 @@ int GLScene::InvokeCallbackMouseMove(float dx, float dy, float dz)
 	return 0;
 }
 
-int GLScene::OnMouseMove(float x, float y)
+int GLScene::OnMouseMove(float x, float y, float z)
 {
-	if (IsInSpace(x, y, m_mouse.z / m_spaceScale))
+	if (IsInSpace(x, y, z))
 	{
 		m_mouseDelta.x = x * m_spaceScale - m_mouse.x;
 		m_mouseDelta.y = y * m_spaceScale - m_mouse.y;
+		m_mouseDelta.z = z * m_spaceScale - m_mouse.z;
 		m_mouse.x = x * m_spaceScale;
 		m_mouse.y = y * m_spaceScale;
+		m_mouse.z = z * m_spaceScale;
 
 		InvokeCallbackMouseMove(m_mouseDelta.x, m_mouseDelta.y, m_mouseDelta.z);
 	}

@@ -172,11 +172,11 @@ int GLScene3D::MotionHandler(int x, int y)
 	{
 		if (m_physicalMouseEnable)
 		{
-			OnMouseMove(x, y);
+			OnMouseMove(x, y, m_mouse.z / m_spaceScale);
 		}
 		else
 		{
-			OnMouseMove(x / m_spaceScale, y / m_spaceScale);
+			OnMouseMove(x / m_spaceScale, y / m_spaceScale, m_mouse.z / m_spaceScale);
 		}
 	}
 
@@ -188,7 +188,7 @@ int GLScene3D::PassiveMotionHandler(int x, int y)
 	return 0;
 }
 
-int GLScene3D::OnMouseMove(float x, float y)
+int GLScene3D::OnMouseMove(float x, float y, float z)
 {
 	if (m_camera != NULL)
 	{
@@ -199,7 +199,7 @@ int GLScene3D::OnMouseMove(float x, float y)
 		}
 		else if(IsInSpace(x, y, m_mouse.z / m_spaceScale))
 		{
-			GLScene::OnMouseMove(x, y);
+			GLScene::OnMouseMove(x, y, z);
 			m_camera->RotateY(10.0f * -m_mouseDelta.x);
 			m_camera->RotateX(10.0f * (y - m_mouseDelta.y));
 		}

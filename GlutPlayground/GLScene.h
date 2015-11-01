@@ -50,7 +50,7 @@ public:
 	virtual int PassiveMotionHandler(int x, int y) = 0;
 
 	virtual int InvokeCallbackMouseMove(float dx, float dy, float dz);
-	virtual int OnMouseMove(float x, float y); // NOTE: mouse is virtual 3d mouse
+	virtual int OnMouseMove(float x, float y, float z); // NOTE: mouse is virtual 3d mouse
 
 protected:
 	glm::vec3 m_origin;

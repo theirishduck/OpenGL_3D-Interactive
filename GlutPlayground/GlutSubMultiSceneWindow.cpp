@@ -84,6 +84,11 @@ int GlutSubMultiSceneWindow::SetStartSceneIndex(int index)
 	return 0;
 }
 
+int GlutSubMultiSceneWindow::GetStartSceneIndex() const
+{
+	return m_startIndex;
+}
+
 int GlutSubMultiSceneWindow::Display()
 {
 	int wStep = m_width / m_nCols;

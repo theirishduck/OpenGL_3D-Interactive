@@ -27,7 +27,7 @@ public:
 	int MotionHandler(int x, int y);
 	int PassiveMotionHandler(int x, int y);
 
-	int OnMouseMove(float x, float y);
+	int OnMouseMove(float x, float y, float z);
 
 protected:
 	std::vector<GLObject3D*> m_objects;

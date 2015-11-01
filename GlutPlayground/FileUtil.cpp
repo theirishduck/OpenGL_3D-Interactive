@@ -30,6 +30,9 @@ string FileUtil::ChooseFile()
 		throw - 1;
 }
 
+/*
+	
+*/
 GLuint FileUtil::LoadTextureFromFile(const char *filename)
 {
 	GlutWindowDescriptor gd = glutGetWindow();
@@ -49,7 +52,7 @@ GLuint FileUtil::LoadTextureFromFile(const char *filename)
 		cvFlip(pImage);
 		if (!pImage) {
 			fprintf(stderr, "FileUtil::LoadTextureFromFile(): cannot load image %s\n", filename);
-			throw - 1;
+			throw IMAGE_LOAD_ERROR;
 		}
 
 		glEnable(GL_TEXTURE_2D);

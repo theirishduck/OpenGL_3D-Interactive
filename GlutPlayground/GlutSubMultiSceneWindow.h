@@ -18,6 +18,7 @@ public:
 	GLScene *GetStartScene();
 
 	int SetStartSceneIndex(int index);
+	int GetStartSceneIndex() const;
 
 	int Display();
 	int KeyboardHandler(unsigned char key, int x, int y);

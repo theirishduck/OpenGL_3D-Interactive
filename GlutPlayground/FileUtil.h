@@ -12,6 +12,11 @@ typedef map<string, GLuint> WindowTexturePool;
 
 namespace FileUtil
 {
+	enum GLIOException
+	{
+		IMAGE_LOAD_ERROR
+	};
+
 	string ChooseFile();
 	GLuint LoadTextureFromFile(const char *filename);
 
