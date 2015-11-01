@@ -44,6 +44,7 @@
 #define MODELSET_INDEX 1
 #define KEYBOARDSET_INDEX 2
 #define PHOTOSET_INDEX 3
+#define SET_GAP g_windowRows * g_windowCols * 2
 
 typedef struct Point3{
 	int x;
@@ -104,8 +105,8 @@ TCPReceiver g_tcpReceiver;
 
 static int g_recvRate = 50;
 static int g_lasttime = 0;
-static int g_setSize = 2; // 2D + D
-static int g_setNum = 1;
+static int g_windowRows = 2;
+static int g_windowCols = 2;
 
 std::vector<GLScene*> g_mainSet;
 std::vector<GLScene*> g_modelSet;
@@ -114,8 +115,6 @@ std::vector<GLScene*> g_photoSet;
 
 GlutSubMultiSceneWindow *g_mainMultiSubSceneWindow;
 GLScene3D *g_modelScenes[DEFAULT_MODELWINDOW_ROWS * DEFAULT_MODELWINDOW_COLS / 2];
-
-GlutSubMultiSceneWindow *CreateModelMultiSceneWindow(int nRows, int nCols);
 
 ObjModel *CreateModel();
 GLScene3D *CreateModelScene(GlutSubWindow *subWindow, ObjModel *model);
@@ -147,28 +146,51 @@ int main(int argc, char *argv[])
 	g_MainWindow = GlutWindow::CreateGlutMainWindow(100, 100, DEFAULT_W, DEFAULT_H, 1, 1);
 	//g_MainWindow->SetTimerFunc(MainWindowLocalTimerFunc, g_recvRate);
 
-	g_mainMultiSubSceneWindow = GlutWindow::CreateGlutSubMultiSceneWindow(g_MainWindow, 1, 2);
-	g_mainSet.push_back(CreateMainScene(g_mainMultiSubSceneWindow));
-	g_mainSet.push_back(new GLDepthScene((GLScene3D*)g_mainSet.front()));
+	g_mainMultiSubSceneWindow = GlutWindow::CreateGlutSubMultiSceneWindow(g_MainWindow, g_windowRows, g_windowCols * 2);
 
-	g_keyboardSet.push_back(CreateKeyboardScene(g_mainMultiSubSceneWindow));
-	g_keyboardSet.push_back(new GLDepthScene((GLScene3D*)g_keyboardSet.front()));
+	int setNum = g_windowRows * g_windowCols;
 
-	g_photoSet.push_back(CreatePhotoScene(g_mainMultiSubSceneWindow, UV_LEFT, UV_SIZE));
-	g_photoSet.push_back(CreatePhotoScene(g_mainMultiSubSceneWindow, UV_RIGHT, UV_SIZE));
+	for (int i = 0; i < setNum; i++)
+	{
+		GLScene3D *scene = CreateMainScene(g_mainMultiSubSceneWindow);
+		g_mainSet.push_back(scene);
+		g_mainSet.push_back(new GLDepthScene(scene));
+	}
+
+	for (int i = 0; i < setNum; i++)
+	{
+		GLScene3D *scene = CreateKeyboardScene(g_mainMultiSubSceneWindow);
+		g_keyboardSet.push_back(scene);
+		g_keyboardSet.push_back(new GLDepthScene(scene));
+	}
+
+	for (int i = 0; i < setNum; i++)
+	{
+		g_photoSet.push_back(CreatePhotoScene(g_mainMultiSubSceneWindow, UV_LEFT, UV_SIZE));
+		g_photoSet.push_back(CreatePhotoScene(g_mainMultiSubSceneWindow, UV_RIGHT, UV_SIZE));
+	}
 
 	ObjModel *model = CreateModel();
-	model->SetCallbackOnto(ModelTouchCallback);
-	model->SetCallbackOntoExit(ModelTouchExitCallback);
-	g_modelSet.push_back(CreateModelScene(g_mainMultiSubSceneWindow, model));
-	g_modelSet.push_back(new GLDepthScene((GLScene3D*)g_modelSet.front()));
+	for (int i = 0; i < setNum; i++)
+	{
+		GLScene3D *scene = CreateModelScene(g_mainMultiSubSceneWindow, model);
+		model->SetCallbackOnto(ModelTouchCallback);
+		model->SetCallbackOntoExit(ModelTouchExitCallback);
+		scene->GetCamera()->SetRotateEnable(true);
+		scene->GetCamera()->RotateY(i * 90.0f);
+		scene->GetCamera()->SetRotateEnable(false);
+		g_modelSet.push_back(scene);
+		g_modelSet.push_back(new GLDepthScene(scene));
+	}
 	g_modelSet[0]->SetMouseMoveCallback(ModelSceneMouseMoveCallback);
 
 	g_mainMultiSubSceneWindow->AddScene(g_mainSet);
 	g_mainMultiSubSceneWindow->AddScene(g_modelSet);
 	g_mainMultiSubSceneWindow->AddScene(g_keyboardSet);
 	g_mainMultiSubSceneWindow->AddScene(g_photoSet);
-	g_mainMultiSubSceneWindow->SetStartSceneIndex(0);
+
+	g_mainMultiSubSceneWindow->SetStartSceneIndex(MODELSET_INDEX * SET_GAP);
+
 	g_MainWindow->AddSubWindow(g_mainMultiSubSceneWindow);
 	
 
@@ -196,39 +218,6 @@ int main(int argc, char *argv[])
 	glutMainLoop();
 	
 	return 0;
-}
-
-GlutSubMultiSceneWindow *CreateModelMultiSceneWindow(int nRows, int nCols)
-{
-	GlutSubMultiSceneWindow *subWindow = GlutWindow::CreateGlutSubMultiSceneWindow(g_MainWindow, nRows, nCols);
-
-	ObjModel *model = CreateModel();
-
-	int halfCols = nCols / 2;
-	for (int i = 0; i < nRows; i++)
-	{
-		for (int j = 0; j < halfCols; j++)
-		{
-			GLScene3D *model_scene = CreateModelScene(subWindow, model);
-			GLScene *model_depth_scene = new GLDepthScene(model_scene);
-
-			model->SetCallbackOnto(ModelTouchCallback);
-			model->SetCallbackOntoExit(ModelTouchExitCallback);
-
-			g_modelScenes[i * halfCols + j] = model_scene;
-			model_scene->GetCamera()->RotateY((i + j) * 90.0f);
-			model_scene->GetCamera()->SetRotateEnable(false);
-			model_scene->SetSpaceScale(10.0f);
-
-			subWindow->AddScene(model_scene);
-			subWindow->AddScene(model_depth_scene);
-
-			if (i + j == 0)
-				model_scene->SetMouseMoveCallback(ModelSceneMouseMoveCallback);
-		}
-	}
-
-	return subWindow;
 }
 
 GLScene3D *CreateModelScene(GlutSubWindow *subWindow, ObjModel *model)
@@ -368,21 +357,21 @@ ObjModel *CreateModel()
 void MainSceneModelCallback(GLScene3D *scene, GLObject3D *obj)
 {
 	std::cout << "MainSceneModelCallback():" << std::endl;
-	g_mainMultiSubSceneWindow->SetStartSceneIndex(MODELSET_INDEX * g_setSize);
+	g_mainMultiSubSceneWindow->SetStartSceneIndex(MODELSET_INDEX * SET_GAP);
 }
 
 void MainSceneKeyboardUseCallback(GLScene3D *scene, GLObject3D *obj)
 {
 	std::cout << "MainSceneKeyboardUseCallback():" << std::endl;
 	scene->ResetMouse();
-	g_mainMultiSubSceneWindow->SetStartSceneIndex(KEYBOARDSET_INDEX * g_setSize);
+	g_mainMultiSubSceneWindow->SetStartSceneIndex(KEYBOARDSET_INDEX * SET_GAP);
 }
 
 void MainScenePhotoCallback(GLScene3D *scene, GLObject3D *obj)
 {
 	std::cout << "MainScenePhotoCallback():" << std::endl;
 	scene->ResetMouse();
-	g_mainMultiSubSceneWindow->SetStartSceneIndex(PHOTOSET_INDEX * g_setSize);
+	g_mainMultiSubSceneWindow->SetStartSceneIndex(PHOTOSET_INDEX * SET_GAP);
 }
 
 void KeyboardSceneMouseMoveCallback(GLScene * scene, float dx, float dy, float dz)
@@ -390,7 +379,7 @@ void KeyboardSceneMouseMoveCallback(GLScene * scene, float dx, float dy, float d
 	if (std::fabs(dx) > KEYBOARD_SCENE_BACK_DETECT_DELTA)
 	{
 		printf("KeyboardSceneMouseMoveCallback(): turn back to main scene\n");
-		g_mainMultiSubSceneWindow->SetStartSceneIndex(MAINSET_INDEX * g_setSize);
+		g_mainMultiSubSceneWindow->SetStartSceneIndex(MAINSET_INDEX * SET_GAP);
 	}
 }
 
@@ -446,7 +435,7 @@ void ModelSceneMouseMoveCallback(GLScene * scene, float dx, float dy, float dz)
 		// Since only one scene can detect mouse move event, so reset the other scenes here
 		for (int i = 0; i < g_modelSet.size(); i++)
 			g_modelSet[i]->ResetMouse();
-		g_mainMultiSubSceneWindow->SetStartSceneIndex(MAINSET_INDEX * g_setSize);
+		g_mainMultiSubSceneWindow->SetStartSceneIndex(MAINSET_INDEX * SET_GAP);
 	}
 }
 
@@ -496,12 +485,18 @@ void MainWindowLocalTimerFunc(int data)
 	static float offset = 0.0001f;
 	try
 	{	
-		GLScene *scene = g_mainMultiSubSceneWindow->GetStartScene();
-
-		glm::vec3 mouse = scene->GetMouse();
 		offset += offset / 10;
-		printf("Move(%f, %f)\n", mouse.x, offset);
-		scene->OnMouseMove(mouse.x, offset);
+		for (int i = 0; i < SET_GAP / 2; i++)
+		{
+			GLScene *scene = g_mainMultiSubSceneWindow->GetScene(MODELSET_INDEX * SET_GAP  + i * 2);
+
+			glm::vec3 mouse = scene->GetMouse();
+			
+			printf("Move(%f, %f)\n", mouse.x, offset);
+			printf("\n");
+
+			scene->OnMouseMove(mouse.x, offset);
+		}
 
 		g_MainWindow->SetTimerFunc(MainWindowLocalTimerFunc, g_recvRate);
 	}
