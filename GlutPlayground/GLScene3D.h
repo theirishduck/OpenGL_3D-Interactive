@@ -5,13 +5,14 @@
 #include "Camera.h"
 
 class GLObject3D;
+class GlutWindow;
 
 class GLScene3D :
 	public GLScene
 {
 public:
-	GLScene3D();
-	GLScene3D(float mx, float my, float mz);
+	GLScene3D(GLContext *context);
+	GLScene3D(GLContext *context, float mx, float my, float mz);
 	~GLScene3D();
 	
 	int AddObject(GLObject3D *obj);

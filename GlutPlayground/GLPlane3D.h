@@ -1,20 +1,21 @@
 #pragma once
 
 #include "GLObject3D.h"
+#include "GLScene3D.h"
 #include "Space3D.h"
 
 class GLPlane3D
 	: public GLObject3D
 {
 public:
-	GLPlane3D();
-	GLPlane3D(glm::vec3 pos, glm::vec3 color, glm::vec3 u, glm::vec3 v);
-	GLPlane3D(glm::vec3 pos, glm::vec3 color, GLfloat size);
-	GLPlane3D(glm::vec3 pos, glm::vec3 color, GLfloat width, GLfloat height);
+	GLPlane3D(GLScene3D *context);
+	GLPlane3D(GLScene3D *context, glm::vec3 pos, glm::vec3 color, glm::vec3 u, glm::vec3 v);
+	GLPlane3D(GLScene3D *context, glm::vec3 pos, glm::vec3 color, GLfloat size);
+	GLPlane3D(GLScene3D *context, glm::vec3 pos, glm::vec3 color, GLfloat width, GLfloat height);
 	~GLPlane3D();
 
-	int SetTexture(GLuint texture);
-	int SetTexture(GLuint texture, GLfloat *uvs, int size);
+	int SetTexture(const char *filename);
+	int SetTexture(const char *filename, GLfloat *uvs, int size);
 
 	bool IsOnto(glm::vec3 point);
 	bool IsInside(glm::vec3 point);

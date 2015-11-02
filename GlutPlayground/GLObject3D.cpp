@@ -1,7 +1,11 @@
 #include <iostream>
+#include "GLScene.h"
+#include "GLScene3D.h"
+#include "GlutWindow.h"
 #include "GLObject3D.h"
 
-GLObject3D::GLObject3D() :
+GLObject3D::GLObject3D(GLScene3D *parentScene) :
+	m_parentScene(parentScene),
 	m_pos(glm::vec3(0, 0, 0)), m_color(glm::vec3(1.0f, 1.0f, 1.0f)),
 	m_renderType(GL_TRIANGLES),
 	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
@@ -11,7 +15,8 @@ GLObject3D::GLObject3D() :
 {
 }
 
-GLObject3D::GLObject3D(glm::vec3 pos) : 
+GLObject3D::GLObject3D(GLScene3D *parentScene, glm::vec3 pos) :
+	m_parentScene(parentScene),
 	m_pos(pos), m_color(glm::vec3(1.0f, 1.0f, 1.0f)), 
 	m_renderType(GL_TRIANGLES),
 	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
@@ -21,7 +26,8 @@ GLObject3D::GLObject3D(glm::vec3 pos) :
 {
 }
 
-GLObject3D::GLObject3D(glm::vec3 pos, glm::vec3 color) : 
+GLObject3D::GLObject3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color) :
+	m_parentScene(parentScene),
 	m_pos(pos), m_color(color), 
 	m_renderType(GL_TRIANGLES),
 	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
@@ -31,7 +37,8 @@ GLObject3D::GLObject3D(glm::vec3 pos, glm::vec3 color) :
 {
 }
 
-GLObject3D::GLObject3D(glm::vec3 pos, glm::vec3 color, int renderType) : 
+GLObject3D::GLObject3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color, int renderType) :
+	m_parentScene(parentScene),
 	m_pos(pos), m_color(color), 
 	m_renderType(renderType),
 	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
@@ -91,14 +98,14 @@ void GLObject3D::SetColor(GLfloat r, GLfloat g, GLfloat b)
 	m_color = glm::vec3(r, g, b);
 }
 
+void GLObject3D::SetTexture(const char * filename)
+{
+	m_texture = m_parentScene->LoadTexture(filename);
+}
+
 void GLObject3D::SetRenderType(int type)
 {
 	m_renderType = type;
-}
-
-void GLObject3D::SetTexture(GLuint texture)
-{
-	m_texture = texture;
 }
 
 void GLObject3D::SetUVMap(const GLfloat * uvs, int size)

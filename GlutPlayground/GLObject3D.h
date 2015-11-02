@@ -13,10 +13,10 @@ typedef void(*CallbackOnto)(GLScene3D *, GLObject3D *);
 class GLObject3D
 {
 public:
-	GLObject3D();
-	GLObject3D(glm::vec3 pos);
-	GLObject3D(glm::vec3 pos, glm::vec3 color);
-	GLObject3D(glm::vec3 pos, glm::vec3 color, int renderType);
+	GLObject3D(GLScene3D *parentScene);
+	GLObject3D(GLScene3D *parentScene, glm::vec3 pos);
+	GLObject3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color);
+	GLObject3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color, int renderType);
 	~GLObject3D();
 
 	virtual int RenderObject();
@@ -27,6 +27,8 @@ public:
 	void SetVisiable(bool b);
 	void SetPos(GLfloat x, GLfloat y, GLfloat z);
 	void SetColor(GLfloat r, GLfloat g, GLfloat b);
+	void SetTexture(const char *filename);
+	void SetUVMap(const GLfloat *uvs, int size);
 	void SetRenderType(int type);
 	void SetCallbackOnto(CallbackOnto callback);
 	void SetCallbackOntoExit(CallbackOnto callback);
@@ -39,6 +41,10 @@ public:
 	GLuint GetTexture() const;
 
 protected:
+	GLScene3D *m_parentScene;
+
+	std::string m_objectName;
+
 	bool m_visiable;
 	int m_renderType; // QUAD, TRIANGLE...
 	glm::vec3 m_pos;
@@ -53,9 +59,6 @@ protected:
 	bool m_ontoFlag;
 	CallbackOnto m_callbackOnto;
 	CallbackOnto m_callbackOntoExit;
-
-	void SetTexture(GLuint texture);
-	void SetUVMap(const GLfloat *uvs, int size);
 
 	virtual int RenderTextureObject();
 	virtual int RenderPlainObject();

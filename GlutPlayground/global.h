@@ -9,6 +9,8 @@
 #define PHOTO_SCENE_ID 3
 #define INVALID_GD -1
 
+#define DEFAULT_ONTO_DISTANCE 0.5f
+
 typedef int GlutWindowDescriptor;
 typedef struct Viewport
 {

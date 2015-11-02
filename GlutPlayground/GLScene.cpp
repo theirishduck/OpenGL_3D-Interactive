@@ -1,9 +1,14 @@
+// OpenGL Context headers
+#include "GlutWindow.h"
+
+#include "FileUtil.h"
 #include "GLScene.h"
 
 #define DEFAULT_MOUSE_RADIUS 0.5f
 #define DEFAULT_MOUSE_COLOR glm::vec3(1.0f, 0.0f, 0.0f)
 
-GLScene::GLScene() :
+GLScene::GLScene(GLContext *context) :
+	m_context(context),
 	m_mouse(glm::vec3(0, 0, 0)),
 	m_origin(glm::vec3(0, 0, 0)),
 	m_spaceScale(1.0f),
@@ -16,7 +21,8 @@ GLScene::GLScene() :
 {
 }
 
-GLScene::GLScene(float mx, float my, float mz):
+GLScene::GLScene(GLContext *context, float mx, float my, float mz):
+	m_context(context),
 	m_mouse(glm::vec3(mx, my, mz)),
 	m_origin(glm::vec3(mx, my, mz)),
 	m_spaceScale(1.0f),
@@ -181,7 +187,27 @@ void GLScene::RenderMouse()
 	glPushMatrix();
 	glTranslatef(m_mouse.x, m_mouse.y, m_mouse.z);
 	glColor3f(m_mouseColor.r, m_mouseColor.g, m_mouseColor.b);
-	glutSolidSphere(m_mouseRadius, 100, 10);
+	glutSolidSphere(m_mouseRadius, 100, 10); // Portablility concern, don't use glut function here at future
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glPopMatrix();
+}
+
+GLuint GLScene::LoadTexture(const char * filename)
+{
+	if (m_context == NULL)
+	{
+		std::cerr << "GLScene::LoadTexture(): attempt to load texture to a null context." << std::endl;
+		return -1;
+	}
+	else
+	{
+		GlutWindowDescriptor curGd = glutGetWindow();
+		glutSetWindow(m_context->m_gd);
+
+		GLuint texture = FileUtil::LoadTextureFromFile(filename);
+
+		glutSetWindow(curGd);
+
+		return texture;
+	}
 }

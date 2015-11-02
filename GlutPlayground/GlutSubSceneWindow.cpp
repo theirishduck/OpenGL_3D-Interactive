@@ -32,26 +32,6 @@ GlutSubSceneWindow *GlutWindow::CreareGlutSubSceneWindow(GlutMainWindow *mainWin
 	}
 }
 
-GLuint GlutWindow::LoadTexture(GlutWindow *destWindow, const char * filename)
-{
-	if (destWindow == NULL)
-	{
-		std::cerr << "GlutWindow::LoadTexture(): attempt to load texture to a null window." << std::endl;
-		return -1;
-	}
-	else
-	{
-		GlutWindowDescriptor curGd = glutGetWindow();
-		glutSetWindow(destWindow->m_gd);
-
-		GLuint texture = FileUtil::LoadTextureFromFile(filename);
-		
-		glutSetWindow(curGd);
-		
-		return texture;
-	}
-}
-
 GlutSubSceneWindow::GlutSubSceneWindow(GlutWindowDescriptor parentGd) :
 	GlutSubWindow(parentGd, 0, 0, 0, 0)
 {

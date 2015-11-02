@@ -16,7 +16,7 @@ TCPReceiver::TCPReceiver(int port): hasClosed(false)
 	{
 		fprintf(stderr, "TCPReceiver(): wsa startup failed\n");
 		WSACleanup();
-		throw - 1;
+		throw TCPReceiver_Exception::WSAINITERROR;
 	}
 
 	m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -24,7 +24,7 @@ TCPReceiver::TCPReceiver(int port): hasClosed(false)
 	{
 		fprintf(stderr, "TCPReceiver(): socket create failed\n");
 		WSACleanup();
-		throw - 1;
+		throw TCPReceiver_Exception::SOCKETINITERROR;
 	}
 
 	m_servaddr.sin_family = AF_INET;
@@ -35,7 +35,7 @@ TCPReceiver::TCPReceiver(int port): hasClosed(false)
 	{
 		fprintf(stderr, "TCPReceiver(): socket binding failed\n");
 		WSACleanup();
-		throw - 1;
+		throw TCPReceiver_Exception::SOCKETBINDERROR;
 	}
 }
 
@@ -67,11 +67,11 @@ void TCPReceiver::Receive(char *buff, size_t size)
 	int bytesRecv = recv(m_senderSocket, buff, size, 0);
 	int wsaError;
 
-	if (bytesRecv > 0) return;
+	if (bytesRecv > 0) 
+		return;
 
 	if (bytesRecv == SOCKET_ERROR && (wsaError = WSAGetLastError()) == WSAEWOULDBLOCK)
 	{
-		//printf("No data\n");
 		throw TCPReceiver_Exception(TCPReceiver_Exception::NONBLOCKING);
 	}
 	else

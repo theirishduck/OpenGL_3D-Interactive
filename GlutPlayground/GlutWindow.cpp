@@ -1,6 +1,7 @@
 #include <GL\freeglut.h>
 #include <iostream>
 #include <cstdio>
+#include "FileUtil.h"
 #include "GlutWindow.h"
 
 GlutWindow *GlutWindow::g_glutWindowPool[MAX_GLUTWINDOW] = { 0 };

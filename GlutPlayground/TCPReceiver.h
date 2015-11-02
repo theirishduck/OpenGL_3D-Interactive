@@ -6,6 +6,9 @@ struct TCPReceiver_Exception
 {
 	enum ExceptionType
 	{
+		WSAINITERROR,
+		SOCKETINITERROR,
+		SOCKETBINDERROR,
 		DISCONNECT,
 		NONBLOCKING,
 		UNKNOWN

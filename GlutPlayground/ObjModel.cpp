@@ -12,10 +12,13 @@
 #include "math.h"
 
 #include "FileUtil.h"
+#include "GLScene3D.h"
+#include "global.h"
 
-#define DEFAULT_ONTO_DISTANCE 0.5f
-
-ObjModel::ObjModel(): m_SpinEnable(false){
+ObjModel::ObjModel(GLScene3D *parentScene) :
+	GLObject3D(parentScene),
+	m_SpinEnable(false),
+	m_detectDistance(DEFAULT_ONTO_DISTANCE){
 	mode = 3;
 }
 	
@@ -25,7 +28,7 @@ ObjModel::~ObjModel(){
 
 bool ObjModel::IsOnto(glm::vec3 mouse)
 {
-	return mouse.z <= 0.5f;
+	return mouse.z <= m_detectDistance;
 }
 
 void ObjModel::AddTriangle(int* p, int* uv, int* n){
@@ -72,7 +75,7 @@ void ObjModel::AddTriangle_1(int* p, int* uv, float* norm){
 
 int ObjModel::LoadTexture(const char* filename)
 {
-    return FileUtil::LoadTextureFromFile(filename);
+	return m_parentScene->LoadTexture(filename);
 }
 
 void ObjModel::LoadMaterial(const char* filename){
@@ -394,8 +397,8 @@ int ObjModel::RenderObject(){
 					float diff[4] = {pMtl->diffuse[0], pMtl->diffuse[1]*ratio,pMtl->diffuse[2]*ratio,pMtl->diffuse[3]};
 					
 					glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diff);
-					//glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, pMtl->specular);
-					//glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, pMtl->shininess*128.0f);
+					glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, pMtl->specular);
+					glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, pMtl->shininess*128.0f);
 				
 					glBindTexture(GL_TEXTURE_2D, pMtl->textureID);
 
@@ -435,7 +438,7 @@ int ObjModel::RenderObject(){
 
 	}
 
-		// glDisable(GL_TEXTURE_2D);
+		glDisable(GL_TEXTURE_2D);
 		if(m_ObjGroup.size()>0) id = (id+1)%(m_ObjGroup.size()*10);
 	}
 

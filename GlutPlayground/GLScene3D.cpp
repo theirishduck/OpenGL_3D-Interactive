@@ -4,14 +4,15 @@
 #include "GLScene3D.h"
 #include "Space3D.h"
 
-GLScene3D::GLScene3D()
+GLScene3D::GLScene3D(GLContext *context) : 
+	GLScene(context)
 {
 	m_diffuse = new GLfloat[4]{ 0.6f, 0.6f, 0.6f, 1.0f };
 	m_ambient = new GLfloat[4]{ 0.1f, 0.1f, 0.1f, 1.0f };
 }
 
-GLScene3D::GLScene3D(float mx, float my, float mz):
-	GLScene(mx, my, mz)
+GLScene3D::GLScene3D(GLContext *context, float mx, float my, float mz) :
+	GLScene(context, mx, my, mz)
 {
 	m_diffuse = new GLfloat[4]{ 0.6f, 0.6f, 0.6f, 1.0f };
 	m_ambient = new GLfloat[4]{ 0.1f, 0.1f, 0.1f, 1.0f };

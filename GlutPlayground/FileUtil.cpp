@@ -67,7 +67,9 @@ GLuint FileUtil::LoadTextureFromFile(const char *filename)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		windowTexturePool[filename_str] = texture;
-		//delete pImage;
+		
+		cvReleaseImage(&pImage);
+
 		std::cout << "FileUtil::LoadTextureFromFile(): load texture " << texture << " for window " << gd << std::endl;
 
 		return texture;

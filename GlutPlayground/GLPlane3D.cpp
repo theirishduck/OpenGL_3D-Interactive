@@ -12,28 +12,29 @@ static const GLfloat PLANE_UVS[] = {
 
 static const int PLANE_UVS_SIZE = 8;
 
-GLPlane3D::GLPlane3D()
+GLPlane3D::GLPlane3D(GLScene3D *parentScene) :
+	GLObject3D(parentScene)
 {
 }
 
-GLPlane3D::GLPlane3D(glm::vec3 pos, glm::vec3 color, glm::vec3 u, glm::vec3 v) :
-	GLObject3D(pos, color, GL_QUADS), 
+GLPlane3D::GLPlane3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color, glm::vec3 u, glm::vec3 v) :
+	GLObject3D(parentScene, pos, color, GL_QUADS),
 	m_u(u), m_v(v), 
 	m_touchDistance(DEFUALT_TOUCH_DISTANCE)
 {
 	Init(pos, u, v);
 }
 
-GLPlane3D::GLPlane3D(glm::vec3 pos, glm::vec3 color, GLfloat size) :
-	GLObject3D(pos, color, GL_QUADS),
+GLPlane3D::GLPlane3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color, GLfloat size) :
+	GLObject3D(parentScene, pos, color, GL_QUADS),
 	m_u(X_AXIS * size), m_v(Y_AXIS * size),
 	m_touchDistance(DEFUALT_TOUCH_DISTANCE)
 {
 	Init(pos, m_u, m_v);
 }
 
-GLPlane3D::GLPlane3D(glm::vec3 pos, glm::vec3 color, GLfloat width, GLfloat height) :
-	GLObject3D(pos, color, GL_QUADS),
+GLPlane3D::GLPlane3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color, GLfloat width, GLfloat height) :
+	GLObject3D(parentScene, pos, color, GL_QUADS),
 	m_u(X_AXIS * width), m_v(Y_AXIS * height),
 	m_touchDistance(DEFUALT_TOUCH_DISTANCE)
 {
@@ -44,17 +45,18 @@ GLPlane3D::~GLPlane3D()
 {
 }
 
-int GLPlane3D::SetTexture(GLuint texture)
+int GLPlane3D::SetTexture(const char *filename)
 {
-	GLObject3D::SetTexture(texture);
+	GLObject3D::SetTexture(filename);
 	GLObject3D::SetUVMap(PLANE_UVS, PLANE_UVS_SIZE);
 
 	return 0;
 }
 
-int GLPlane3D::SetTexture(GLuint texture, GLfloat * uvs, int size)
+
+int GLPlane3D::SetTexture(const char *filename, GLfloat * uvs, int size)
 {
-	GLObject3D::SetTexture(texture);
+	GLObject3D::SetTexture(filename);
 	GLObject3D::SetUVMap(uvs, size);
 
 	return 0;

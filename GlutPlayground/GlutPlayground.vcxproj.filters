@@ -69,6 +69,9 @@
     <ClCompile Include="GLDepthScene.cpp">
       <Filter>原始程式檔</Filter>
     </ClCompile>
+    <ClCompile Include="GLModel3D.cpp">
+      <Filter>原始程式檔</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -122,9 +125,13 @@
     <ClInclude Include="GLDepthScene.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="GLModel3D.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
     <None Include="ClassDiagram1.cd" />
+    <None Include="ClassDiagram2.cd" />
   </ItemGroup>
 </Project>

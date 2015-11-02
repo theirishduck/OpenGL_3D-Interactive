@@ -5,8 +5,8 @@
 #include "GLObject3D.h"
 
 using namespace std;
-//#include "iTCPrecv.h"
 
+class GlutWindow;
 
 struct ObjMaterial{
 	ObjMaterial(){
@@ -94,7 +94,7 @@ class ObjModel
 	: public GLObject3D
 {
 public:
-	ObjModel();
+	ObjModel(GLScene3D *parentScene);
 	~ObjModel();
 	void Load(char* filename);
 	int RenderObject();
@@ -128,6 +128,11 @@ public:
 		return m_ObjGroup.size();
 	}
 
+	void SetDetectDistance(float distance)
+	{
+		m_detectDistance = distance;
+	}
+
 	bool IsOnto(glm::vec3 mouse);
 
 	float depth_min_temp;
@@ -150,6 +155,7 @@ private:
 	void AddTriangle_1(int* p, int* uv, float* norm);
 	void LoadMaterial(const char* filename);
 	int LoadTexture(const char* filename);
+
 	vector<ObjMaterial> m_ObjMaterial;
 	vector<float> m_PosBuffer;
 	vector<float> m_UVBuffer;
@@ -158,8 +164,12 @@ private:
 	vector<int> m_IndexBuffer;
 	vector<MaterialPart> m_MaterialPart;
 	vector<ObjGroup> m_ObjGroup;
+	
 	float* pZ_Buffer;
 	float* pZ_show;
+	
+	float m_detectDistance;
+	
 	void ObjModel::Create_Normals(int* p,float[3]);
 
 

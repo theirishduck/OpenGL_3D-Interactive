@@ -6,18 +6,22 @@
 
 class GLScene;
 class GLDepthScene;
+class GlutWindow;
+
+typedef GlutWindow GLContext;
 
 typedef void(*MouseMoveCallback)(GLScene *scene, float dx, float dy, float dz);
 
 class GLScene
 {
 	friend class GLDepthScene;
+	friend class GLObject3D;
+	friend class ObjModel;
 public:
-	GLScene();
-	GLScene(float mx, float my, float mz);
+	GLScene(GLContext *context);
+	GLScene(GLContext *context, float mx, float my, float mz);
 	~GLScene();
 
-public:
 	glm::vec3 GetMouse() const;
 	glm::vec3 GetNormalizeMouse() const;
 	void ResetMouse(); // Set mouse to the origin of the scene
@@ -53,6 +57,8 @@ public:
 	virtual int OnMouseMove(float x, float y, float z); // NOTE: mouse is virtual 3d mouse
 
 protected:
+	GLContext *m_context;
+
 	glm::vec3 m_origin;
 	float m_spaceScale; // Consider a scene as a box, this is its dimension length
 
@@ -68,5 +74,7 @@ protected:
 
 	GLCamera *m_camera;
 	Viewport m_viewport;
+
+	GLuint LoadTexture(const char *filename);
 };
 

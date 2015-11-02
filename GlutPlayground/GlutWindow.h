@@ -15,6 +15,7 @@ class GlutSubWindow;
 class GlutSubSceneWindow;
 class GlutSubMultiSceneWindow;
 class GlutSubDepthWindow;
+class GLScene;
 
 class GlutWindow
 {
@@ -22,6 +23,7 @@ class GlutWindow
 	friend class GlutSubWindow;
 	friend class GlutSubSceneWindow;
 	friend class GlutSubDepthWindow;
+	friend class GLScene;
 private:
 	static GlutWindow *g_glutWindowPool[MAX_GLUTWINDOW];
 	static bool g_enable[MAX_GLUTWINDOW];
@@ -33,7 +35,6 @@ public:
 	static GlutSubMultiSceneWindow *CreateGlutSubMultiSceneWindow(GlutMainWindow *mainWindow, int nRow, int nCols);
 	static GlutSubDepthWindow *CreareGlutSubDepthWindow(GlutMainWindow *mainWindow, GlutWindow *refWindow);
 	static void DeleteGlutWindow(GlutWindow * window);
-	static GLuint LoadTexture(GlutWindow *destWindow, const char *filename);
 	static void GlutReshape(int w, int h);
 	static void GlutDisplay();
 	static void GlutKeyboardHandler(unsigned char key, int x, int y);
