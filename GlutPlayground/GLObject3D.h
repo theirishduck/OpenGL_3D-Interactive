@@ -3,12 +3,34 @@
 #include <GL\freeglut.h>
 #include <glm\glm.hpp>
 #include <vector>
+#include <sstream>
 
 #define GLOBJECT3D_NO_TEXTURE -1
 
 class GLScene3D;
 class GLObject3D;
 typedef void(*CallbackOnto)(GLScene3D *, GLObject3D *);
+
+typedef struct GLMaterial
+{
+	glm::vec3 m_ambientColor;
+	glm::vec3 m_diffuseColor;
+	glm::vec3 m_specularColor;
+	int m_illum;
+	int m_ns;
+	glm::vec3 m_transparentColor;
+
+} GLMaterial;
+
+typedef struct GLFace
+{
+	std::vector< std::vector<int> > m_vertexDescriptors;
+	
+} GLFace;
+typedef struct GLGroup 
+{
+	
+} GLGroup;
 
 class GLObject3D
 {
@@ -51,6 +73,7 @@ protected:
 
 	std::vector<glm::vec3> m_vertexs;
 	std::vector<glm::vec2> m_uvs;
+	std::vector<glm::vec3> m_normals;
 
 	glm::vec3 m_color;
 
@@ -62,5 +85,12 @@ protected:
 
 	virtual int RenderTextureObject();
 	virtual int RenderPlainObject();
+
+private:
+	void Load(const char *filename);
+	void LoadVertex(std::stringstream &line);
+	void LoadUV(std::stringstream &line);
+	void LoadNormal(std::stringstream &line);
+	void LoadFace(std::stringstream &line);
 };
 

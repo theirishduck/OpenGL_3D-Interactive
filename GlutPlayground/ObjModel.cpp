@@ -356,6 +356,7 @@ int ObjModel::RenderObject(){
     glLightModelfv( GL_LIGHT_MODEL_AMBIENT, amb_light );
     glLightfv( GL_LIGHT0, GL_DIFFUSE, diffuse );
     glLightfv( GL_LIGHT0, GL_SPECULAR, specular );
+
     glEnable( GL_COLOR_MATERIAL );
     glShadeModel( GL_SMOOTH );
     glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE );
@@ -371,12 +372,6 @@ int ObjModel::RenderObject(){
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_TEXTURE_2D);
 		
-
-	if(mode==0)
-	{
-	
-	
-	}
 	if(mode==3)
 	{
 		if(m_SpinEnable)

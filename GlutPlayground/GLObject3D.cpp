@@ -1,4 +1,7 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 #include "GLScene.h"
 #include "GLScene3D.h"
 #include "GlutWindow.h"
@@ -193,6 +196,62 @@ int GLObject3D::RenderPlainObject()
 	glEnd();
 
 	return 0;
+}
+
+void GLObject3D::Load(const char * filename)
+{
+	std::ifstream file;
+	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	try {
+		file.open(filename, std::ifstream::in);
+		
+		std::string line;
+		while (std::getline(file, line))
+		{
+			std::stringstream ss(line);
+			std::string dataType;
+			if (dataType == "o")
+			{
+				std::cout << "Object Name: " << dataType << std::endl;
+				ss >> m_objectName;
+			}
+			else if (dataType == "v")
+			{
+				LoadVertex(ss);
+			}
+			else if (dataType == "vt")
+			{
+				LoadUV(ss);
+			}
+			else if (dataType == "vn")
+			{
+				LoadNormal(ss);
+			}
+			else if (dataType == "f")
+			{
+				LoadFace(ss);
+			}
+		}
+	}
+	catch (std::ifstream::failure e) {
+		std::cout << "Exception opening/reading file\n";
+	}
+}
+
+void GLObject3D::LoadVertex(std::stringstream &line)
+{
+}
+
+void GLObject3D::LoadUV(std::stringstream &line)
+{
+}
+
+void GLObject3D::LoadNormal(std::stringstream &line)
+{
+}
+
+void GLObject3D::LoadFace(std::stringstream &line)
+{
 }
 
 bool GLObject3D::GetVisiable() const
