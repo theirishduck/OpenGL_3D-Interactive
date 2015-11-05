@@ -103,7 +103,10 @@ void CCamera::UpdateViewport(int x, int y, int w, int h)
 
 void CCamera::Update(){
 
-	float finalX = m_PosX-m_AtX, finalY = m_PosY-m_AtY, finalZ = m_PosZ-m_AtZ;
+	finalX = m_PosX - m_AtX;
+	finalY = m_PosY - m_AtY;
+	finalZ = m_PosZ - m_AtZ;
+
 	float upX = m_UpX, upY = m_UpY, upZ = m_UpZ;
 
 	m_FinalUp[0] = upX; m_FinalUp[1] = upY; m_FinalUp[2] = upZ;
@@ -160,16 +163,16 @@ void CCamera::Update(){
 	glLoadIdentity();
 	gluPerspective(m_Fov, m_Aspect, m_Near, m_Far);
 
-	// Camera
+	// Camera	
+	finalX += shift_vX;
+	finalY += shift_vY;
+	finalZ += shift_vZ;
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(finalX + shift_vX, finalY + shift_vY, finalZ + shift_vZ, 
+	gluLookAt(finalX, finalY, finalZ, 
 		m_AtX + shift_vX, m_AtY + shift_vY, m_AtZ + shift_vZ, 
 		upX, upY, upZ);
-
-	//printf("In (%f, %f, %f)\nLook (%f, %f, %f)\nUp (%f, %f, %f)\n", finalX + shift_vX, finalY + shift_vY, finalZ + shift_vZ,
-	//	m_AtX + shift_vX, m_AtY + shift_vY, m_AtZ + shift_vZ,
-	//	upX, upY, upZ);
 	 
 }
 

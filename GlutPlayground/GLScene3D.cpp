@@ -17,7 +17,7 @@ static const GLfloat DEFAULT_SPECULAR[4] = {
 };
 
 static const GLfloat DEFAULT_POSITION[4] = {
-	0.0f, 0.0f, 500.0f, 1.0f
+	0.0f, 0.0f, 500.0f, 0.0f
 };
 
 
@@ -103,7 +103,6 @@ void GLScene3D::SetPositionLightPos(glm::vec3 pos)
 int GLScene3D::Render(int x, int y, int width, int height)
 {
 	glColor3f(1.0f, 1.0f, 1.0f);
-
 	if (m_mouseVisiable)
 		RenderMouse();
 
@@ -127,6 +126,7 @@ int GLScene3D::Setup(int x, int y, int width, int height)
 	glLightfv(GL_LIGHT0, GL_AMBIENT, m_ambient);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, m_specular);
 	glLightfv(GL_LIGHT0, GL_POSITION, m_position);
+
 	glShadeModel(GL_SMOOTH);
 	
 	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
@@ -249,6 +249,10 @@ int GLScene3D::OnMouseMove(float x, float y, float z)
 		{
 			m_camera->RotateY(0.01f * (m_mouse.x - x));
 			m_camera->RotateX(0.01f * (y - m_mouse.y));
+
+			SetPositionLightPos(glm::vec3((m_camera->finalX), 
+				(m_camera->finalY),
+				(m_camera->finalZ)));
 		}
 		else if(IsInSpace(x, y, z))
 		{

@@ -112,8 +112,8 @@ int GlutSubMultiSceneWindow::Display()
 			int x = col * wStep;
 			int y = row * hStep;
 			scene->RenderBackgroundImage(x, y, wStep, hStep);
-			scene->Setup(x, y, wStep, hStep);
 			scene->Update(x, y, wStep, hStep);
+			scene->Setup(x, y, wStep, hStep);
 			scene->Render(x, y, wStep, hStep);
 		}
 		

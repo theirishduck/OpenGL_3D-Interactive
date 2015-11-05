@@ -2,8 +2,13 @@
 
 #include <GL\freeglut.h>
 
+class GLScene;
+class GLScene3D;
+
 class GLCamera
 {
+	friend class GLScene;
+	friend class GLScene3D;
 public:
 	GLCamera() {};
 	~GLCamera() {};
@@ -45,6 +50,21 @@ public:
 		return m_PosZ;
 	}
 
+	float GetFinalX()
+	{
+		return finalX;
+	}
+
+	float GetFinalY()
+	{
+		return finalY;
+	}
+
+	float GetFinalZ()
+	{
+		return finalZ;
+	}
+
 	virtual void SetRotateEnable(bool b)
 	{
 		m_enableRotate = b;
@@ -57,6 +77,9 @@ protected:
 	float m_PosX;
 	float m_PosY;
 	float m_PosZ;
+	float finalX;
+	float finalY;
+	float finalZ;
 
 	float m_Near;
 	float m_Far;

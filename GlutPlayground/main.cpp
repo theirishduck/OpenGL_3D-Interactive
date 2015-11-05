@@ -87,6 +87,8 @@ typedef struct Point3{
 /*
 	*_TEXTURES is a set of filename of image which will be loaded as texture
 */
+static const char *MAINSCENE_BACKGROUND_IMG = "img/bg.png";
+
 static const char *MAINSCENE_TEXTURES[] = {
 	"img/main_1.bmp",
 	"img/main_2.bmp",
@@ -204,24 +206,28 @@ int main(int argc, char *argv[])
 
 	int setNum = g_windowRows * g_windowCols;
 	
+	/*
+		Load Main Scene
+	*/
 	for (int i = 0; i < setNum; i++)
 	{
 		GLScene3D *scene = CreateMainScene(g_mainMultiSubSceneWindow);
 		try
 		{
-			scene->SetBackgroundImage("img/bg.png");
+			scene->SetBackgroundImage(MAINSCENE_BACKGROUND_IMG);
 			scene->SetBackgroundImageVisible(true);
-			scene->SetPhysicalMouseEnable(true);
 		}
 		catch (FileUtil::GLIOException e)
 		{
-			fprintf(stderr, "main(): failed to load image on create main scene.\n");
+			std::cerr << "main(): failed to load background image on create main scene." << std::endl;
 		}
+		scene->SetPhysicalMouseEnable(false);
 		g_mainSet.push_back(scene);
 		g_mainSet.push_back(new GLDepthScene(g_mainMultiSubSceneWindow, scene));
 	}
 	
 	/*
+		Load Model Scene
 		Create a pivot scene to load 
 	*/
 	GLScene3D *scene = new GLScene3D(g_mainMultiSubSceneWindow, 0, 0, 0.8f);
@@ -270,7 +276,7 @@ int main(int argc, char *argv[])
 	
 
 	// Add scene set by set
-	//g_mainMultiSubSceneWindow->AddScene(g_mainSet);
+	g_mainMultiSubSceneWindow->AddScene(g_mainSet);
 	g_mainMultiSubSceneWindow->AddScene(g_modelSet);
 
 	g_MainWindow->AddSubWindow(g_mainMultiSubSceneWindow);
@@ -504,9 +510,21 @@ void ModelSceneMouseMoveCallback(GLScene * scene, float dx, float dy, float dz)
 {
 	printf("\tDelta(%f, %f, %f)\n",dx,dy,dz);
 
-	GLScene3D *scene3d = (GLScene3D*)scene;
-	GLCamera *camera = scene3d->GetCamera();
-	scene3d->SetPositionLightPos(glm::vec3(camera->GetPosX(), camera->GetPosY(), camera->GetPosZ()));
+	try
+	{
+		GLScene3D *scene3d = dynamic_cast<GLScene3D*>(scene);
+		GLCamera *camera = scene3d->GetCamera();
+		if (camera != NULL)
+		{
+			scene3d->SetPositionLightPos(glm::vec3((camera->GetFinalX()),
+				(camera->GetFinalY()),
+				(camera->GetFinalZ())));
+		}
+	}
+	catch (bad_cast e)
+	{
+		std::cerr << "ModelSceneMouseMoveCallback(): this callback function must be with a GLScene3D." << std::endl;
+	}
 
 	if (std::fabs(dy) > MODEL_SCENE_BACK_DETECT_DELTA)
 	{

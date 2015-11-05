@@ -190,7 +190,6 @@ int GLScene::Update(int x, int y, int width, int height)
 	{
 		m_camera->Update();
 	}
-
 	return 0;
 }
 
