@@ -31,6 +31,9 @@ public:
 
 	void SetCamera(GLCamera *camera);
 	GLCamera *GetCamera() const;
+	
+	void SetBackgroundImage(const char *filename);
+	void SetBackgroundImageVisible(bool b);
 
 	void SetMouseMoveCallback(MouseMoveCallback callback);
 
@@ -45,6 +48,7 @@ public:
 	virtual int Setup(int x, int y, int width, int height);
 	virtual int Update(int x, int y, int width, int height);
 	virtual void RenderMouse();
+	virtual void RenderBackgroundImage(int x, int y, int width, int height);
 
 	virtual int KeyboardHandler(unsigned char key, int x, int y) = 0;
 	virtual int SpecialKeyHandler(int key, int x, int y) = 0;
@@ -74,6 +78,9 @@ protected:
 
 	GLCamera *m_camera;
 	Viewport m_viewport;
+
+	GLuint m_backgroundImageTextureID;
+	bool m_backgroundImageVisible;
 
 	GLuint LoadTexture(const char *filename);
 };

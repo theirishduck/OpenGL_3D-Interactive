@@ -17,7 +17,9 @@ GLScene::GLScene(GLContext *context) :
 	m_mouseVisiable(false),
 	m_mouseColor(DEFAULT_MOUSE_COLOR),
 	m_mouseRadius(DEFAULT_MOUSE_RADIUS),
-	m_viewport(Viewport{0, 0, 0, 0})
+	m_viewport(Viewport{0, 0, 0, 0}), 
+	m_backgroundImageTextureID(0),
+	m_backgroundImageVisible(false)
 {
 }
 
@@ -31,7 +33,9 @@ GLScene::GLScene(GLContext *context, float mx, float my, float mz):
 	m_mouseVisiable(false),
 	m_mouseColor(DEFAULT_MOUSE_COLOR),
 	m_mouseRadius(DEFAULT_MOUSE_RADIUS),
-	m_viewport(Viewport{ 0, 0, 0, 0 })
+	m_viewport(Viewport{ 0, 0, 0, 0 }),
+	m_backgroundImageTextureID(0),
+	m_backgroundImageVisible(false)
 {
 }
 
@@ -69,6 +73,16 @@ void GLScene::SetSpaceScale(float scale)
 GLCamera *GLScene::GetCamera() const
 {
 	return m_camera;
+}
+
+void GLScene::SetBackgroundImage(const char * filename)
+{
+	m_backgroundImageTextureID = LoadTexture(filename);
+}
+
+void GLScene::SetBackgroundImageVisible(bool b)
+{
+	m_backgroundImageVisible = b;
 }
 
 void GLScene::SetMouseMoveCallback(MouseMoveCallback callback)
@@ -134,7 +148,6 @@ int GLScene::OnMouseMove(float x, float y, float z)
 		m_mouse.x = x * m_spaceScale;
 		m_mouse.y = y * m_spaceScale;
 		m_mouse.z = z * m_spaceScale;
-
 		InvokeCallbackMouseMove(m_mouseDelta.x, m_mouseDelta.y, m_mouseDelta.z);
 	}
 
@@ -183,6 +196,8 @@ int GLScene::Update(int x, int y, int width, int height)
 
 void GLScene::RenderMouse()
 {
+	if (!m_mouseVisiable)
+		return;
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glPushMatrix();
 	glTranslatef(m_mouse.x, m_mouse.y, m_mouse.z);
@@ -190,6 +205,31 @@ void GLScene::RenderMouse()
 	glutSolidSphere(m_mouseRadius, 100, 10); // Portablility concern, don't use glut function here at future
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glPopMatrix();
+}
+
+void GLScene::RenderBackgroundImage(int x, int y, int width, int height)
+{
+	if (!m_backgroundImageVisible)
+		return;
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glViewport(x, y, width, height);
+	glDisable(GL_DEPTH_TEST);
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, m_backgroundImageTextureID);
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f); glNormal3f(0, 0, 1); glVertex2f(-1.0f, -1.0f);
+	glTexCoord2f(1.0f, 0.0f); glNormal3f(0, 0, 1); glVertex2f(1.0f, -1.0f);
+	glTexCoord2f(1.0f, 1.0f); glNormal3f(0, 0, 1); glVertex2f(1.0f, 1.0f);
+	glTexCoord2f(0.0f, 1.0f); glNormal3f(0, 0, 1); glVertex2f(-1.0f, 1.0f);
+	glEnd();
 }
 
 GLuint GLScene::LoadTexture(const char * filename)

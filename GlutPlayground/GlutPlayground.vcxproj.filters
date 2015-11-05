@@ -72,6 +72,9 @@
     <ClCompile Include="GLModel3D.cpp">
       <Filter>原始程式檔</Filter>
     </ClCompile>
+    <ClCompile Include="GLObjectUI.cpp">
+      <Filter>原始程式檔</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -126,6 +129,12 @@
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="GLModel3D.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="GLObjectUI.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="GLData.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>

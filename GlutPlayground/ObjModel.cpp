@@ -342,41 +342,9 @@ void ObjModel::Create_Normals(int* p,float norm[3]){
 };
 
 int ObjModel::RenderObject(){
-	
-	//GLfloat lightPos0[] = {0.0f, 0.0f, 500.0f, 1.0f};
-	//GLfloat lightPos1[] = {0.0f, 0.0f, -500.0f, 1.0f};
-	//glLightfv(GL_LIGHT0, GL_POSITION, lightPos0);
 
-	glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
-
-    GLfloat amb_light[] = { 0.1, 0.1, 0.1, 1.0 };
-    GLfloat diffuse[] = { 0.6, 0.6, 0.6, 1 };
-    GLfloat specular[] = { 0.7, 0.7, 0.3, 1 };
-
-    glLightModelfv( GL_LIGHT_MODEL_AMBIENT, amb_light );
-    glLightfv( GL_LIGHT0, GL_DIFFUSE, diffuse );
-    glLightfv( GL_LIGHT0, GL_SPECULAR, specular );
-
-    glEnable( GL_COLOR_MATERIAL );
-    glShadeModel( GL_SMOOTH );
-    glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE );
-    glDepthFunc( GL_LEQUAL );
-
-
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_TEXTURE_2D);
-		
 	if(mode==3)
 	{
-		if(m_SpinEnable)
-			draw_wired_circle(0, 50, 0, 120);
-
 		static int id = 0;
 		int vertexSize = sizeof(ObjVertex);
 
@@ -428,14 +396,15 @@ int ObjModel::RenderObject(){
 				glDisableClientState(GL_NORMAL_ARRAY);
 				glDisableClientState(GL_VERTEX_ARRAY);			
 		}
-		//if(ball_pos_z < 0.5)
-		//draw_wired_circle(0,100,0,120);	
 
 	}
 
 		glDisable(GL_TEXTURE_2D);
 		if(m_ObjGroup.size()>0) id = (id+1)%(m_ObjGroup.size()*10);
 	}
+
+	if (m_SpinEnable)
+		draw_wired_circle(center.x, center.y, center.z, max_radius);
 
 	return 0;
 }
@@ -447,6 +416,9 @@ void ObjModel::draw_wired_circle(float x, float y, float z, float radius)
                       
     GLfloat TWOPI=2.0f * 3.14159f;
 
+	glColor3f(1.0f, 1.0f, 1.0f);
+
+	glDisable(GL_LIGHTING);
     glBegin(GL_LINE_STRIP);
         for(count=0; count<=sections; count++)
         {
@@ -460,4 +432,5 @@ void ObjModel::draw_wired_circle(float x, float y, float z, float radius)
 			glVertex3f(x,y+radius*cos(count*TWOPI/sections), z+radius*sin(count*TWOPI/sections));
         }
     glEnd();
+	glEnable(GL_LIGHTING);
 }

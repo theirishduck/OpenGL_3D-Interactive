@@ -128,6 +128,7 @@
     <ClCompile Include="GLDepthScene.cpp" />
     <ClCompile Include="GLModel3D.cpp" />
     <ClCompile Include="global.cpp" />
+    <ClCompile Include="GLObjectUI.cpp" />
     <ClCompile Include="GLPlane3D.cpp" />
     <ClCompile Include="GLScene.cpp" />
     <ClCompile Include="GlutMainWindow.cpp" />
@@ -146,9 +147,11 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="FileUtil.h" />
+    <ClInclude Include="GLData.h" />
     <ClInclude Include="GLDepthScene.h" />
     <ClInclude Include="GLModel3D.h" />
     <ClInclude Include="global.h" />
+    <ClInclude Include="GLObjectUI.h" />
     <ClInclude Include="GLPlane3D.h" />
     <ClInclude Include="GLScene.h" />
     <ClInclude Include="GlutMainWindow.h" />

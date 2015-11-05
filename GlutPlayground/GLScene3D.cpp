@@ -4,31 +4,46 @@
 #include "GLScene3D.h"
 #include "Space3D.h"
 
+static const GLfloat DEFAULT_DIFFUSE[4] = {
+	0.6f, 0.6f, 0.6f, 1.0f
+};
+
+static const GLfloat DEFAULT_AMBIENT[4] = {
+	0.1f, 0.1f, 0.1f, 1.0f
+};
+
+static const GLfloat DEFAULT_SPECULAR[4] = {
+	0.7f, 0.7f, 0.7f, 1.0f
+};
+
+static const GLfloat DEFAULT_POSITION[4] = {
+	0.0f, 0.0f, 500.0f, 1.0f
+};
+
+
 GLScene3D::GLScene3D(GLContext *context) : 
 	GLScene(context)
 {
-	m_diffuse = new GLfloat[4]{ 0.6f, 0.6f, 0.6f, 1.0f };
-	m_ambient = new GLfloat[4]{ 0.1f, 0.1f, 0.1f, 1.0f };
+	SetDefaultLight();
 }
 
 GLScene3D::GLScene3D(GLContext *context, float mx, float my, float mz) :
 	GLScene(context, mx, my, mz)
 {
-	m_diffuse = new GLfloat[4]{ 0.6f, 0.6f, 0.6f, 1.0f };
-	m_ambient = new GLfloat[4]{ 0.1f, 0.1f, 0.1f, 1.0f };
+	SetDefaultLight();
 }
 
 
 GLScene3D::~GLScene3D()
 {
 	delete m_camera;
-	delete m_diffuse;
 
 	for (std::vector<GLObject3D*>::iterator it = m_objects.begin(); it != m_objects.end(); it++)
 	{
 		if (*it != NULL)
 			delete *it;
 	}
+
 }
 
 int GLScene3D::AddObject(GLObject3D *obj)
@@ -46,11 +61,47 @@ int GLScene3D::AddObject(GLObject3D *obj)
 	return 0;
 }
 
+void GLScene3D::SetDiffuseLight(glm::vec4 light)
+{
+	m_diffuse[0] = light.r;
+	m_diffuse[1] = light.g;
+	m_diffuse[2] = light.b;
+	m_diffuse[3] = light.a;
+}
 
+void GLScene3D::SetAmbientLight(glm::vec4 light)
+{
+	m_ambient[0] = light.r;
+	m_ambient[1] = light.g;
+	m_ambient[2] = light.b;
+	m_ambient[3] = light.a;
+}
+
+void GLScene3D::SetSpecularLight(glm::vec4 light)
+{
+	m_specular[0] = light.r;
+	m_specular[1] = light.g;
+	m_specular[2] = light.b;
+	m_specular[3] = light.a;
+}
+
+void GLScene3D::SetPositionLight(glm::vec4 light)
+{
+	m_position[0] = light.r;
+	m_position[1] = light.g;
+	m_position[2] = light.b;
+	m_position[3] = light.a;
+}
+
+void GLScene3D::SetPositionLightPos(glm::vec3 pos)
+{
+	m_position[0] = pos.x;
+	m_position[1] = pos.y;
+	m_position[2] = pos.z;
+}
 
 int GLScene3D::Render(int x, int y, int width, int height)
 {
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glColor3f(1.0f, 1.0f, 1.0f);
 
 	if (m_mouseVisiable)
@@ -63,7 +114,6 @@ int GLScene3D::Render(int x, int y, int width, int height)
 		(*it)->RenderObject();
 	}
 
-	//glutSwapBuffers();
 
 	return 0;
 }
@@ -72,8 +122,11 @@ int GLScene3D::Setup(int x, int y, int width, int height)
 {
 	GLScene::Setup(x, y, width, height);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glEnable(GL_LIGHTING);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, m_diffuse);
-	glLightfv(GL_LIGHT1, GL_AMBIENT, m_ambient);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, m_ambient);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, m_specular);
+	glLightfv(GL_LIGHT0, GL_POSITION, m_position);
 	glShadeModel(GL_SMOOTH);
 	
 	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
@@ -83,7 +136,6 @@ int GLScene3D::Setup(int x, int y, int width, int height)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_COLOR_MATERIAL);
-	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 	glEnable(GL_BLEND);
 
@@ -198,13 +250,21 @@ int GLScene3D::OnMouseMove(float x, float y, float z)
 			m_camera->RotateY(0.01f * (m_mouse.x - x));
 			m_camera->RotateX(0.01f * (y - m_mouse.y));
 		}
-		else if(IsInSpace(x, y, m_mouse.z / m_spaceScale))
+		else if(IsInSpace(x, y, z))
 		{
 			GLScene::OnMouseMove(x, y, z);
 			m_camera->RotateY(10.0f * -m_mouseDelta.x);
-			m_camera->RotateX(10.0f * (y - m_mouseDelta.y));
+			m_camera->RotateX(10.0f * (m_mouseDelta.y));
 		}
 	}
 
 	return 0;
+}
+
+void GLScene3D::SetDefaultLight()
+{
+	memcpy(m_diffuse, DEFAULT_DIFFUSE, sizeof(m_diffuse));
+	memcpy(m_ambient, DEFAULT_AMBIENT, sizeof(m_ambient));
+	memcpy(m_specular, DEFAULT_SPECULAR, sizeof(m_specular));
+	memcpy(m_position, DEFAULT_POSITION, sizeof(m_position));
 }

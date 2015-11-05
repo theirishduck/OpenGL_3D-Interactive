@@ -11,14 +11,44 @@ class GLScene3D;
 class GLObject3D;
 typedef void(*CallbackOnto)(GLScene3D *, GLObject3D *);
 
+typedef struct GLColor4 
+{
+	GLfloat r;
+	GLfloat g;
+	GLfloat b;
+	GLfloat a;
+
+	GLColor4() 
+	{};
+	
+	GLColor4(GLfloat r, GLfloat g, GLfloat b, GLfloat a) : r(r), g(g), b(b), a(a)
+	{}
+
+	GLColor4(glm::vec4 v) : r(v.r), g(v.g), b(v.b), a(v.a) 
+	{};
+} GLColor4;
+
+typedef struct GLColor3
+{
+	GLfloat r;
+	GLfloat g;
+	GLfloat b;
+
+	GLColor3()
+	{};
+
+	GLColor3(glm::vec3 v) : r(v.r), g(v.g), b(v.b)
+	{};
+} GLColor3;
+
 typedef struct GLMaterial
 {
-	glm::vec3 m_ambientColor;
-	glm::vec3 m_diffuseColor;
-	glm::vec3 m_specularColor;
-	int m_illum;
-	int m_ns;
-	glm::vec3 m_transparentColor;
+	GLColor4 m_ambientColor;
+	GLColor4 m_diffuseColor;
+	GLColor4 m_specularColor;
+	GLint m_illum;
+	GLint m_ns;
+	GLColor3 m_transparentColor;
 
 } GLMaterial;
 
@@ -27,6 +57,7 @@ typedef struct GLFace
 	std::vector< std::vector<int> > m_vertexDescriptors;
 	
 } GLFace;
+
 typedef struct GLGroup 
 {
 	
@@ -50,8 +81,12 @@ public:
 	void SetPos(GLfloat x, GLfloat y, GLfloat z);
 	void SetColor(GLfloat r, GLfloat g, GLfloat b);
 	void SetTexture(const char *filename);
+	void SetMaterialAmbientColor(glm::vec4 color);
+	void SetMaterialDiffuseColor(glm::vec4 color);
+	void SetMaterialSpecularColor(glm::vec4 color);
 	void SetUVMap(const GLfloat *uvs, int size);
 	void SetRenderType(int type);
+
 	void SetCallbackOnto(CallbackOnto callback);
 	void SetCallbackOntoExit(CallbackOnto callback);
 	void InvokeCallbackOnto(GLScene3D *scene);
@@ -76,6 +111,7 @@ protected:
 	std::vector<glm::vec3> m_normals;
 
 	glm::vec3 m_color;
+	GLMaterial m_material;
 
 	GLuint m_texture; // Consider only one textute for now
 
@@ -92,5 +128,7 @@ private:
 	void LoadUV(std::stringstream &line);
 	void LoadNormal(std::stringstream &line);
 	void LoadFace(std::stringstream &line);
+
+	void SetDefaultMaterial();
 };
 

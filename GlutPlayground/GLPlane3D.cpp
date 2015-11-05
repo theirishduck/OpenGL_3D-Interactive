@@ -114,4 +114,6 @@ void GLPlane3D::Init(glm::vec3 pos, glm::vec3 u, glm::vec3 v)
 	m_vertexs.push_back(glm::vec3(m_u.x,  m_u.y,  m_u.z));
 	m_vertexs.push_back(glm::vec3(m_u.x + m_v.x, m_u.y + m_v.y, m_u.z + m_v.z));
 	m_vertexs.push_back(glm::vec3(m_v.x, m_v.y, m_v.z));
+	
+	m_normals.push_back(m_normal);
 }

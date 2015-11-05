@@ -42,7 +42,7 @@
 #define DEFAULT_BACKLOG 5
 
 // Scene scale definition
-#define MAIN_SCENE_SCALE 4.0f
+#define MAIN_SCENE_SCALE 50.0f
 #define MODEL_SCENE_SCALE 4.0f
 #define KEYBOARD_SCENE_SCALE 4.0f
 #define PHOTO_SCENE_SCALE 1.0f
@@ -173,57 +173,6 @@ void MainWindowLocalTimerFunc(int data);
 
 void InitTCPReceiver();
 
-/*
-ObjModel *testModel;
-CCamera *testCamera;
-GLScene3D *testScene;
-GlutMainWindow *testMainWindow;
-GlutSubMultiSceneWindow *testSubWindow;
-
-void TestModelDisplay();
-void TestModelDisplay()
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	testScene->Setup(0, 0, 640, 480);
-	testScene->Update(0, 0, 640, 480);
-	testScene->Render(0, 0, 640, 480);
-	glutSwapBuffers();
-	glutPostRedisplay();
-}
-
-void TestModel();
-void TestModel()
-{
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(640, 480);
-
-	int gd = glutCreateWindow("Main");
-	glutDisplayFunc(TestModelDisplay);
-	//glutReshapeFunc(GlutWindow::GlutReshape);
-	//glutMouseFunc(GlutWindow::GlutMouseHandler);
-	//glutMotionFunc(GlutWindow::GlutMotionHandler);
-	//glutPassiveMotionFunc(GlutWindow::GlutPassiveMotionHandler);
-	//glutMouseWheelFunc(GlutWindow::GlutMouseWheelHandler);
-	//glutSpecialFunc(GlutWindow::GlutSpecialKeyHandler);
-	testModel = CreateModel();
-	testCamera = new CCamera();
-	testCamera->SetPerspective(45, 1, 0.1 * testModel->max_radius, 4 * testModel->max_radius);
-	testCamera->SetPos(testModel->center.x,
-		testModel->center.y,
-		testModel->center.z + 2 * testModel->max_radius * 1.3); //0,-35,300
-	testCamera->SetAt(testModel->center.x,
-		testModel->center.y,
-		testModel->center.z);
-	testCamera->SetUp(0, 1, 0);
-	testScene = new GLScene3D();
-	testScene->SetCamera(testCamera);
-	testScene->AddObject(testModel);
-	
-	glutMainLoop();
-}
-*/
-
 int main(int argc, char *argv[])
 {
 	glutInit(&argc, argv);
@@ -254,10 +203,20 @@ int main(int argc, char *argv[])
 		GlutWindow::CreateGlutSubMultiSceneWindow(g_MainWindow, g_windowRows, g_windowCols * 2);
 
 	int setNum = g_windowRows * g_windowCols;
-
+	
 	for (int i = 0; i < setNum; i++)
 	{
 		GLScene3D *scene = CreateMainScene(g_mainMultiSubSceneWindow);
+		try
+		{
+			scene->SetBackgroundImage("img/bg.png");
+			scene->SetBackgroundImageVisible(true);
+			scene->SetPhysicalMouseEnable(true);
+		}
+		catch (FileUtil::GLIOException e)
+		{
+			fprintf(stderr, "main(): failed to load image on create main scene.\n");
+		}
 		g_mainSet.push_back(scene);
 		g_mainSet.push_back(new GLDepthScene(g_mainMultiSubSceneWindow, scene));
 	}
@@ -308,9 +267,10 @@ int main(int argc, char *argv[])
 	
 	// Only one scene can receive MouseMove event
 	g_modelSet[0]->SetMouseMoveCallback(ModelSceneMouseMoveCallback);
+	
 
 	// Add scene set by set
-	g_mainMultiSubSceneWindow->AddScene(g_mainSet);
+	//g_mainMultiSubSceneWindow->AddScene(g_mainSet);
 	g_mainMultiSubSceneWindow->AddScene(g_modelSet);
 
 	g_MainWindow->AddSubWindow(g_mainMultiSubSceneWindow);
@@ -365,7 +325,7 @@ GLScene3D *CreateKeyboardScene(GlutSubWindow *subWindow)
 		// Setup camera
 		CCamera *camera = new CCamera();
 		camera->SetPerspective(50.0, 1.0f, 0.5f, 25.0f);
-		camera->SetPos(0, 0, 15);
+		camera->SetPos(0, 0, 15.0f);
 		camera->SetAt(0, 0, 0);
 		camera->SetUp(0, 1, 0);
 		camera->SetRotateEnable(false);
@@ -472,6 +432,7 @@ ObjModel *CreateModel(GLScene3D *scene)
 void MainSceneModelCallback(GLScene3D *scene, GLObject3D *obj)
 {
 	std::cout << "MainSceneModelCallback():" << std::endl;
+	scene->ResetMouse();
 	g_mainMultiSubSceneWindow->SetStartSceneIndex(MODELSET_INDEX * SET_GAP);
 }
 
@@ -542,6 +503,11 @@ void ModelTouchExitCallback(GLScene3D * scene, GLObject3D * obj)
 void ModelSceneMouseMoveCallback(GLScene * scene, float dx, float dy, float dz)
 {
 	printf("\tDelta(%f, %f, %f)\n",dx,dy,dz);
+
+	GLScene3D *scene3d = (GLScene3D*)scene;
+	GLCamera *camera = scene3d->GetCamera();
+	scene3d->SetPositionLightPos(glm::vec3(camera->GetPosX(), camera->GetPosY(), camera->GetPosZ()));
+
 	if (std::fabs(dy) > MODEL_SCENE_BACK_DETECT_DELTA)
 	{
 		printf("ModelSceneMouseMoveCallback(): turn back to main scene\n");
@@ -658,7 +624,7 @@ void InitTCPReceiver()
 		}
 
 		printf("Sender connected\n");
-		//g_tcpReceiver.SetNonBlocking();
+		g_tcpReceiver.SetNonBlocking();
 	}
 	catch (TCPReceiver_Exception e)
 	{

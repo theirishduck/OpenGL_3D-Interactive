@@ -16,6 +16,11 @@ public:
 	~GLScene3D();
 	
 	int AddObject(GLObject3D *obj);
+	void SetDiffuseLight(glm::vec4 light);
+	void SetAmbientLight(glm::vec4 light);
+	void SetSpecularLight(glm::vec4 light);
+	void SetPositionLight(glm::vec4 light);
+	void SetPositionLightPos(glm::vec3 pos);
 
 	virtual int Render(int x, int y, int width, int height);
 	virtual int Setup(int x, int y, int width, int height);
@@ -33,7 +38,12 @@ public:
 protected:
 	std::vector<GLObject3D*> m_objects;
 
-	GLfloat *m_diffuse;
-	GLfloat *m_ambient;
+	GLfloat m_diffuse[4];
+	GLfloat m_ambient[4];
+	GLfloat m_specular[4];
+	GLfloat m_position[4];
+	
+private:
+	void SetDefaultLight();
 };
 

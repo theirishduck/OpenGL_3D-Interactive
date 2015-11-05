@@ -7,6 +7,11 @@
 #include "GlutWindow.h"
 #include "GLObject3D.h"
 
+static const GLColor4 DEFAULT_MATERIAL_AMBIENT(0.5, 0.5, 0.5, 1.0);
+static const GLColor4 DEFAULT_MATERIAL_DIFFUSE(0.7, 0.7, 0.7, 1.0);
+static const GLColor4 DEFAULT_MATERIAL_SPECULAR(0.2, 0.2, 0.2, 1.0);
+static const GLint DEFAULT_MATERIAL_SHINESS = 256;
+
 GLObject3D::GLObject3D(GLScene3D *parentScene) :
 	m_parentScene(parentScene),
 	m_pos(glm::vec3(0, 0, 0)), m_color(glm::vec3(1.0f, 1.0f, 1.0f)),
@@ -16,6 +21,7 @@ GLObject3D::GLObject3D(GLScene3D *parentScene) :
 	m_callbackOntoExit(NULL),
 	m_ontoFlag(false)
 {
+	SetDefaultMaterial();
 }
 
 GLObject3D::GLObject3D(GLScene3D *parentScene, glm::vec3 pos) :
@@ -27,6 +33,7 @@ GLObject3D::GLObject3D(GLScene3D *parentScene, glm::vec3 pos) :
 	m_callbackOntoExit(NULL), 
 	m_ontoFlag(false)
 {
+	SetDefaultMaterial();
 }
 
 GLObject3D::GLObject3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color) :
@@ -38,6 +45,7 @@ GLObject3D::GLObject3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color) :
 	m_callbackOntoExit(NULL),
 	m_ontoFlag(false)
 {
+	SetDefaultMaterial();
 }
 
 GLObject3D::GLObject3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color, int renderType) :
@@ -49,6 +57,7 @@ GLObject3D::GLObject3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color, i
 	m_callbackOntoExit(NULL),
 	m_ontoFlag(false)
 {
+	SetDefaultMaterial();
 }
 
 GLObject3D::~GLObject3D()
@@ -106,6 +115,21 @@ void GLObject3D::SetTexture(const char * filename)
 	m_texture = m_parentScene->LoadTexture(filename);
 }
 
+void GLObject3D::SetMaterialAmbientColor(glm::vec4 color)
+{
+	m_material.m_ambientColor = color;
+}
+
+void GLObject3D::SetMaterialDiffuseColor(glm::vec4 color)
+{
+	m_material.m_diffuseColor = color;
+}
+
+void GLObject3D::SetMaterialSpecularColor(glm::vec4 color)
+{
+	m_material.m_specularColor = color;
+}
+
 void GLObject3D::SetRenderType(int type)
 {
 	m_renderType = type;
@@ -161,18 +185,31 @@ void GLObject3D::InvokeCallbackOntoExit(GLScene3D * scene)
 
 int GLObject3D::RenderTextureObject()
 {
+	glMaterialfv(GL_FRONT, GL_AMBIENT, (GLfloat*)&m_material.m_ambientColor);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, (GLfloat*)&m_material.m_diffuseColor);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*)&m_material.m_specularColor);
+	
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 	glBegin(m_renderType);
 
 	std::vector<glm::vec3>::iterator vertexit = m_vertexs.begin();
 	std::vector<glm::vec2>::iterator uvit = m_uvs.begin();
+	std::vector<glm::vec3>::iterator normalit = m_normals.begin();
 
+	int groupSize = (m_renderType == GL_QUADS) ? 4 : 3;
+	int cntVertex = 0;
 	while (vertexit != m_vertexs.end() && uvit != m_uvs.end())
 	{
+		glNormal3f(normalit->x, normalit->y, normalit->z);
 		glTexCoord2f(uvit->x, uvit->y);
 		glVertex3f(vertexit->x, vertexit->y, vertexit->z);
 		vertexit++;
 		uvit++;
+
+		cntVertex++;
+		if (cntVertex == groupSize && normalit != m_normals.end())
+			normalit++;
+		cntVertex %= groupSize;
 	}
 
 	if (!(vertexit == m_vertexs.end() && uvit == m_uvs.end()))
@@ -252,6 +289,14 @@ void GLObject3D::LoadNormal(std::stringstream &line)
 
 void GLObject3D::LoadFace(std::stringstream &line)
 {
+}
+
+void GLObject3D::SetDefaultMaterial()
+{
+	m_material.m_ambientColor = DEFAULT_MATERIAL_AMBIENT;
+	m_material.m_diffuseColor = DEFAULT_MATERIAL_DIFFUSE;
+	m_material.m_specularColor = DEFAULT_MATERIAL_SPECULAR;
+	m_material.m_ns = DEFAULT_MATERIAL_SHINESS;
 }
 
 bool GLObject3D::GetVisiable() const
