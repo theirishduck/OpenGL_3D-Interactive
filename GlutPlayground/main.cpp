@@ -405,7 +405,10 @@ void LoadPhotoSet(int setNum)
 
 GLScene3D *CreateMainScene(GlutSubWindow *subWindow)
 {
-	GLScene3D *main_scene = new GLScene3D(subWindow);
+	GLScene3D *main_scene = new GLScene3D(subWindow, 
+		g_main_mouse_startX, 
+		g_main_mouse_startY, 
+		g_main_mouse_startZ);
 	try
 	{
 		GLPlane3D *planes[3];

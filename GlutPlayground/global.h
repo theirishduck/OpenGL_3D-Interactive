@@ -55,7 +55,7 @@ namespace Config
 
 	static float g_main_scene_scale = 50.0f;
 	static float g_main_scene_leftmost_position = -4.0f;
-	static float g_main_scene_uppermost_position = 0.2f;
+	static float g_main_scene_uppermost_position = -0.5f;
 	static float g_main_scene_frontmost_position = 0.0f;
 	static float g_main_scene_button_size = 2.0f;
 	static float g_main_scene_button_padding = 1.0f;
@@ -74,7 +74,7 @@ namespace Config
 	static bool g_main_camera_rotatable = false;
 	static float g_main_mouse_startX = 0.0f;
 	static float g_main_mouse_startY = 0.0f;
-	static float g_main_mouse_startZ = 0.0f;
+	static float g_main_mouse_startZ = 5.0f;
 	static bool g_main_mouse_visiable = true;
 	static bool g_main_mouse_physical_enable = false;
 
