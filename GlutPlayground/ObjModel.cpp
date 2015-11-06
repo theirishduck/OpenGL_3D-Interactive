@@ -15,10 +15,12 @@
 #include "GLScene3D.h"
 #include "global.h"
 
+using namespace Config;
+
 ObjModel::ObjModel(GLScene3D *parentScene) :
 	GLObject3D(parentScene),
 	m_SpinEnable(false),
-	m_detectDistance(DEFAULT_ONTO_DISTANCE){
+	m_detectDistance(g_touchDistance){
 	mode = 3;
 }
 	

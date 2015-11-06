@@ -20,7 +20,7 @@ string FileUtil::ChooseFile()
 	ofn.nMaxFile = sizeof(file);
 	ofn.lpstrFilter = "All(*.*)\0*.*\0";
 	ofn.nFilterIndex = 1;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
 	if (GetOpenFileName(&ofn))
 	{

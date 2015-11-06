@@ -10,7 +10,7 @@
 static const GLColor4 DEFAULT_MATERIAL_AMBIENT(0.5, 0.5, 0.5, 1.0);
 static const GLColor4 DEFAULT_MATERIAL_DIFFUSE(0.7, 0.7, 0.7, 1.0);
 static const GLColor4 DEFAULT_MATERIAL_SPECULAR(0.2, 0.2, 0.2, 1.0);
-static const GLint DEFAULT_MATERIAL_SHINESS = 256;
+static const GLint DEFAULT_MATERIAL_SHINESS = 127;
 
 GLObject3D::GLObject3D(GLScene3D *parentScene) :
 	m_parentScene(parentScene),
@@ -190,6 +190,7 @@ int GLObject3D::RenderTextureObject()
 	glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*)&m_material.m_specularColor);
 	
 	glBindTexture(GL_TEXTURE_2D, m_texture);
+
 	glBegin(m_renderType);
 
 	std::vector<glm::vec3>::iterator vertexit = m_vertexs.begin();

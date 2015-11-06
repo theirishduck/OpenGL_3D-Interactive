@@ -211,12 +211,14 @@ void GLScene::RenderBackgroundImage(int x, int y, int width, int height)
 	if (!m_backgroundImageVisible)
 		return;
 
+	glViewport(x, y, width, height);
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glViewport(x, y, width, height);
 	glDisable(GL_DEPTH_TEST);
 
 	glColor3f(1.0f, 1.0f, 1.0f);

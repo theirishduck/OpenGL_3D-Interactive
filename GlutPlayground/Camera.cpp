@@ -20,6 +20,8 @@ CCamera::CCamera(){
 		0, 1, 0);
 
 	m_shift = 0;
+	m_scaleX = 1.0f;
+	m_scaleY = 1.0f;
 }
 
 CCamera::~CCamera(){
@@ -57,6 +59,16 @@ void CCamera::SetAt(float x, float y, float z)
 	Update();
 }
 
+void CCamera::SetScaleX(float x)
+{
+	m_scaleX = x;
+}
+
+void CCamera::SetScaleY(float y)
+{
+	m_scaleY = y;
+}
+
 void CCamera::RotateX(float angle)
 {
 	if (!m_enableRotate)
@@ -81,6 +93,17 @@ void CCamera::RotateZ(float angle)
 	Update();
 }
 
+
+void CCamera::SetFov(float fov)
+{
+	m_Fov = fov;
+}
+
+float CCamera::GetFov()
+{
+	return m_Fov;
+}
+
 void CCamera::GetFront(float * front)
 {
 	front[0] = m_FinalFront[0];
@@ -98,7 +121,7 @@ void CCamera::GetUp(float * up)
 void CCamera::UpdateViewport(int x, int y, int w, int h)
 {
 	GLCamera::UpdateViewport(x, y, w, h);
-	m_Aspect = (float)w / (float)h;
+	m_Aspect = ((float)w * m_scaleX) / ((float)h * m_scaleY);
 }
 
 void CCamera::Update(){

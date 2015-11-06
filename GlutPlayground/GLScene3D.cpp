@@ -4,6 +4,8 @@
 #include "GLScene3D.h"
 #include "Space3D.h"
 
+using namespace Config;
+
 static const GLfloat DEFAULT_DIFFUSE[4] = {
 	0.6f, 0.6f, 0.6f, 1.0f
 };
@@ -22,13 +24,17 @@ static const GLfloat DEFAULT_POSITION[4] = {
 
 
 GLScene3D::GLScene3D(GLContext *context) : 
-	GLScene(context)
+	GLScene(context),
+	m_startObjectIndex(0),
+	m_displayObjectsNum(0)
 {
 	SetDefaultLight();
 }
 
 GLScene3D::GLScene3D(GLContext *context, float mx, float my, float mz) :
-	GLScene(context, mx, my, mz)
+	GLScene(context, mx, my, mz),
+	m_startObjectIndex(0),
+	m_displayObjectsNum(0)
 {
 	SetDefaultLight();
 }
@@ -51,6 +57,7 @@ int GLScene3D::AddObject(GLObject3D *obj)
 	if (obj != NULL)
 	{
 		m_objects.push_back(obj);
+		m_displayObjectsNum = m_objects.size();
 	}
 	else
 	{
@@ -59,6 +66,42 @@ int GLScene3D::AddObject(GLObject3D *obj)
 	}
 
 	return 0;
+}
+
+void GLScene3D::ReplaceObject(GLObject3D * obj, int index)
+{
+	if (obj != NULL && index < m_objects.size())
+	{
+		m_objects[index] = obj;
+	}
+	else if (obj == NULL)
+	{
+		std::cerr << "GLScene3D::ReplaceObject(): attempt to put a null object." << std::endl;
+	}
+	else
+	{
+		std::cerr << "GLScene3D::ReplaceObject(): index out of range." << std::endl;
+	}
+}
+
+int GLScene3D::GetObjectsSize() const
+{
+	return m_objects.size();
+}
+
+int GLScene3D::GetStartIndex() const
+{
+	return m_startObjectIndex;
+}
+
+void GLScene3D::SetStartIndex(int index)
+{
+	m_startObjectIndex = index;
+}
+
+void GLScene3D::SetDisplayObjectsNum(int num)
+{
+	m_displayObjectsNum = num;
 }
 
 void GLScene3D::SetDiffuseLight(glm::vec4 light)
@@ -106,11 +149,13 @@ int GLScene3D::Render(int x, int y, int width, int height)
 	if (m_mouseVisiable)
 		RenderMouse();
 
-	for (std::vector<GLObject3D*>::iterator it = m_objects.begin(); it != m_objects.end(); it++)
+	int displayCnt = 0;
+	for (int i = m_startObjectIndex; i < m_objects.size() && displayCnt < m_displayObjectsNum; i++)
 	{
-		if(*it == NULL)
+		if(m_objects[i] == NULL)
 			std::cerr << "GLScene3D::AddObject(): attempt to access null pointer." << std::endl;
-		(*it)->RenderObject();
+		m_objects[i]->RenderObject();
+		displayCnt++;
 	}
 
 
@@ -187,10 +232,16 @@ int GLScene3D::SpecialKeyHandler(int key, int x, int y)
 			m_mouse.x += 0.1f;
 			break;
 		case GLUT_KEY_PAGE_DOWN:
-			m_mouse.y -= 10.0f + 5.0f;
+			InvokeCallbackMouseMove(0, -(g_scene_back_delta + 5.0f), 0);
 			break;
 		case GLUT_KEY_PAGE_UP:
-			m_mouse.y += 10.0f + 5.0f;
+			InvokeCallbackMouseMove(0, g_scene_back_delta + 5.0f, 0);
+			break;
+		case GLUT_KEY_END:
+			InvokeCallbackMouseMove(g_photo_mouse_switch_delta + 5.0f, 0, 0);
+			break;
+		case GLUT_KEY_HOME:
+			InvokeCallbackMouseMove(-(g_photo_mouse_switch_delta + 5.0f), 0, 0);
 			break;
 		default:
 			break;

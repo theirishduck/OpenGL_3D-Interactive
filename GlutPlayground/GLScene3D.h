@@ -16,6 +16,11 @@ public:
 	~GLScene3D();
 	
 	int AddObject(GLObject3D *obj);
+	void ReplaceObject(GLObject3D *obj, int index);
+	int GetObjectsSize() const;
+	int GetStartIndex() const;
+	void SetStartIndex(int index);
+	void SetDisplayObjectsNum(int num);
 	void SetDiffuseLight(glm::vec4 light);
 	void SetAmbientLight(glm::vec4 light);
 	void SetSpecularLight(glm::vec4 light);
@@ -37,6 +42,9 @@ public:
 
 protected:
 	std::vector<GLObject3D*> m_objects;
+
+	int m_startObjectIndex;
+	int m_displayObjectsNum;
 
 	GLfloat m_diffuse[4];
 	GLfloat m_ambient[4];

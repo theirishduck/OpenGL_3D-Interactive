@@ -1,7 +1,7 @@
 #include "GLPlane3D.h"
 #include "global.h"
 
-#define DEFUALT_TOUCH_DISTANCE 0.5f
+using namespace Config;
 
 static const GLfloat PLANE_UVS[] = {
 	0.0f, 0.0f,
@@ -20,7 +20,7 @@ GLPlane3D::GLPlane3D(GLScene3D *parentScene) :
 GLPlane3D::GLPlane3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color, glm::vec3 u, glm::vec3 v) :
 	GLObject3D(parentScene, pos, color, GL_QUADS),
 	m_u(u), m_v(v), 
-	m_touchDistance(DEFUALT_TOUCH_DISTANCE)
+	m_touchDistance(g_touchDistance)
 {
 	Init(pos, u, v);
 }
@@ -28,7 +28,7 @@ GLPlane3D::GLPlane3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color, glm
 GLPlane3D::GLPlane3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color, GLfloat size) :
 	GLObject3D(parentScene, pos, color, GL_QUADS),
 	m_u(X_AXIS * size), m_v(Y_AXIS * size),
-	m_touchDistance(DEFUALT_TOUCH_DISTANCE)
+	m_touchDistance(g_touchDistance)
 {
 	Init(pos, m_u, m_v);
 }
@@ -36,7 +36,7 @@ GLPlane3D::GLPlane3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color, GLf
 GLPlane3D::GLPlane3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color, GLfloat width, GLfloat height) :
 	GLObject3D(parentScene, pos, color, GL_QUADS),
 	m_u(X_AXIS * width), m_v(Y_AXIS * height),
-	m_touchDistance(DEFUALT_TOUCH_DISTANCE)
+	m_touchDistance(g_touchDistance)
 {
 	Init(pos, m_u, m_v);
 }
