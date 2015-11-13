@@ -54,10 +54,10 @@ namespace Config
 	static float g_touchDistance = 0.5f;
 
 	static float g_main_scene_scale = 50.0f;
-	static float g_main_scene_leftmost_position = -4.0f;
+	static float g_main_scene_leftmost_position = -7.0f;
 	static float g_main_scene_uppermost_position = -0.5f;
-	static float g_main_scene_frontmost_position = 0.0f;
-	static float g_main_scene_button_size = 2.0f;
+	static float g_main_scene_frontmost_position = -1.5f;
+	static float g_main_scene_button_size = 4.0f;
 	static float g_main_scene_button_padding = 1.0f;
 	static float g_main_camera_fov = 50.0f;
 	static float g_main_camera_near = 0.5f;
@@ -82,7 +82,7 @@ namespace Config
 	static float g_model_camera_fov = 45.0f;
 	static float g_model_camera_near_factor = 0.1f;
 	static float g_model_camera_far_factor = 4.0f;
-	static float g_model_camera_posZ_factor = 1.3f;
+	static float g_model_camera_posZ_factor = 1.5f;
 	static float g_model_camera_upX = 0.0f;
 	static float g_model_camera_upY = 1.0f;
 	static float g_model_camera_upZ = 0.0f;
@@ -92,9 +92,9 @@ namespace Config
 	static float g_model_mouse_startZ = 0.0f;
 
 	static float g_keyboard_scene_scale = 4.0f;
-	static float g_keyboard_scene_leftmost_position = -4.0f;
-	static float g_keyboard_scene_uppermost_position = 1.0f;
-	static float g_keyboard_scene_frontmost_position = 0.0f;
+	static float g_keyboard_scene_leftmost_position = -3.0f;
+	static float g_keyboard_scene_lowermost_position = -4.0f;
+	static float g_keyboard_scene_frontmost_position = -0.2f;
 	static float g_keyboard_scene_button_size = 2.0f;
 	static float g_keyboard_camera_fov = 50.0f;
 	static float g_keyboard_camera_scaleX = 1.0f;

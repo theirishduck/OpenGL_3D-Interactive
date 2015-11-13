@@ -67,25 +67,12 @@ typedef struct Point3{
 static const char *MAINSCENE_BACKGROUND_IMG = "img/bg.png";
 
 static const char *MAINSCENE_TEXTURES[] = {
-	"img/main_1.bmp",
-	"img/main_2.bmp",
-	"img/main_3.bmp"
+	"img/main_1.png",
+	"img/main_2.png",
+	"img/main_3.png"
 };
 
-static const char *KEYBOARD_TEXTURES[] = {
-	"img/kb_1.bmp",
-	"img/kb_2.bmp",
-	"img/kb_3.bmp",
-	"img/kb_4.bmp",
-	"img/kb_5.bmp",
-	"img/kb_6.bmp",
-	"img/kb_7.bmp",
-	"img/kb_8.bmp",
-	"img/kb_9.bmp",
-	"img/kb_10.bmp",
-	"img/kb_11.bmp",
-	"img/kb_12.bmp",
-};
+static const char *KEYBOARD_TEXTURE = "img/kb.png";
 
 /*
 	The following UV_LEFT, UV_RIGHT, UV_SIZE, IMGS is for PhotoScene
@@ -110,9 +97,9 @@ static GLfloat UV_RIGHT[] = {
 static const int UV_SIZE = 8;
 
 static const char *IMGS[] = {
-	"img/pic1.bmp",
-	"img/pic2.bmp",
-	"img/pic3.bmp",
+	"img/pic1.png",
+	"img/pic2.png",
+	"img/pic3.png",
 };
 
 GlutMainWindow *g_MainWindow;
@@ -462,14 +449,22 @@ GLScene3D *CreateKeyboardScene(GlutSubWindow *subWindow)
 		{
 			for (int j = 0; j < 3; j++)
 			{
+				float uv[] = {
+					(float)(j) * (1.0f / 3.0f), (float)(i) * (1.0f / 4.0f),
+					(float)(j + 1) * (1.0f / 3.0f), (float)(i) * (1.0f / 4.0f),
+					(float)(j + 1) * (1.0f / 3.0f), (float)(i + 1) * (1.0f / 4.0f),
+					(float)(j) * (1.0f / 3.0f), (float)(i + 1) * (1.0f / 4.0f)
+				};
+
 				GLPlane3D *plane = new GLPlane3D(
 					scene,
 					glm::vec3(g_keyboard_scene_leftmost_position + j * g_keyboard_scene_button_size, 
-						g_keyboard_scene_uppermost_position - i * g_keyboard_scene_button_size, 
+						g_keyboard_scene_lowermost_position + i * g_keyboard_scene_button_size, 
 						g_keyboard_scene_frontmost_position),
 					COLOR_WHITE,
 					g_keyboard_scene_button_size);
-				plane->SetTexture(KEYBOARD_TEXTURES[i * 3 + j]);
+
+				plane->SetTexture(KEYBOARD_TEXTURE, uv, UV_SIZE);
 				plane->SetCallbackOnto(KeyboardSceneOntoCallback);
 				plane->SetCallbackOntoExit(KeyboardSceneOntoExitCallback);
 				scene->AddObject(plane);

@@ -254,7 +254,6 @@ int GLScene3D::MouseHandler(int button, int state, int x, int y)
 {
 	if (m_physicalMouseEnable)
 	{
-		//OnMouseMove(x / m_spaceScale, y / m_spaceScale);
 		m_mouse.x = x;
 		m_mouse.y = y;
 	}

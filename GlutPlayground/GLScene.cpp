@@ -144,10 +144,10 @@ int GLScene::OnMouseMove(float x, float y, float z)
 	{
 		m_mouseDelta.x = x * m_spaceScale - m_mouse.x;
 		m_mouseDelta.y = y * m_spaceScale - m_mouse.y;
-		m_mouseDelta.z = z * m_spaceScale - m_mouse.z;
+		m_mouseDelta.z = z - m_mouse.z;
 		m_mouse.x = x * m_spaceScale;
 		m_mouse.y = y * m_spaceScale;
-		m_mouse.z = z * m_spaceScale;
+		m_mouse.z = z;
 		InvokeCallbackMouseMove(m_mouseDelta.x, m_mouseDelta.y, m_mouseDelta.z);
 	}
 
