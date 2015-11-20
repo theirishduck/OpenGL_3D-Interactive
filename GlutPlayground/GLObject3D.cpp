@@ -16,7 +16,9 @@ GLObject3D::GLObject3D(GLScene3D *parentScene) :
 	m_parentScene(parentScene),
 	m_pos(glm::vec3(0, 0, 0)), m_color(glm::vec3(1.0f, 1.0f, 1.0f)),
 	m_renderType(GL_TRIANGLES),
-	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
+	m_visiable(true),
+	m_ignoreLighting(false),
+	m_texture(GLOBJECT3D_NO_TEXTURE),
 	m_callbackOnto(NULL),
 	m_callbackOntoExit(NULL),
 	m_ontoFlag(false)
@@ -28,7 +30,9 @@ GLObject3D::GLObject3D(GLScene3D *parentScene, glm::vec3 pos) :
 	m_parentScene(parentScene),
 	m_pos(pos), m_color(glm::vec3(1.0f, 1.0f, 1.0f)), 
 	m_renderType(GL_TRIANGLES),
-	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
+	m_visiable(true), 
+	m_ignoreLighting(false),
+	m_texture(GLOBJECT3D_NO_TEXTURE),
 	m_callbackOnto(NULL), 
 	m_callbackOntoExit(NULL), 
 	m_ontoFlag(false)
@@ -40,7 +44,9 @@ GLObject3D::GLObject3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color) :
 	m_parentScene(parentScene),
 	m_pos(pos), m_color(color), 
 	m_renderType(GL_TRIANGLES),
-	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
+	m_visiable(true), 
+	m_ignoreLighting(false),
+	m_texture(GLOBJECT3D_NO_TEXTURE),
 	m_callbackOnto(NULL),
 	m_callbackOntoExit(NULL),
 	m_ontoFlag(false)
@@ -52,7 +58,9 @@ GLObject3D::GLObject3D(GLScene3D *parentScene, glm::vec3 pos, glm::vec3 color, i
 	m_parentScene(parentScene),
 	m_pos(pos), m_color(color), 
 	m_renderType(renderType),
-	m_visiable(true), m_texture(GLOBJECT3D_NO_TEXTURE),
+	m_visiable(true), 
+	m_ignoreLighting(false),
+	m_texture(GLOBJECT3D_NO_TEXTURE),
 	m_callbackOnto(NULL),
 	m_callbackOntoExit(NULL),
 	m_ontoFlag(false)
@@ -98,6 +106,11 @@ void GLObject3D::AddVertex(glm::vec3 vertex)
 void GLObject3D::SetVisiable(bool b)
 {
 	m_visiable = b;
+}
+
+void GLObject3D::SetIgnoreLighting(bool b)
+{
+	m_ignoreLighting = b;
 }
 
 void GLObject3D::SetPos(GLfloat x, GLfloat y, GLfloat z)
@@ -185,10 +198,14 @@ void GLObject3D::InvokeCallbackOntoExit(GLScene3D * scene)
 
 int GLObject3D::RenderTextureObject()
 {
-	glMaterialfv(GL_FRONT, GL_AMBIENT, (GLfloat*)&m_material.m_ambientColor);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, (GLfloat*)&m_material.m_diffuseColor);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*)&m_material.m_specularColor);
-	
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, (GLfloat*)&m_material.m_ambientColor);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, (GLfloat*)&m_material.m_diffuseColor);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, (GLfloat*)&m_material.m_specularColor);
+	glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, 255);
+
+	if (m_ignoreLighting)
+		glDisable(GL_LIGHTING);
+
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 
 	glBegin(m_renderType);
@@ -220,6 +237,9 @@ int GLObject3D::RenderTextureObject()
 
 	glEnd();
 
+	if (m_ignoreLighting)
+		glEnable(GL_LIGHTING);
+
 	return 0;
 }
 
@@ -236,6 +256,9 @@ int GLObject3D::RenderPlainObject()
 	return 0;
 }
 
+/**
+	No using for now, reserved for extension
+*/
 void GLObject3D::Load(const char * filename)
 {
 	std::ifstream file;
@@ -276,18 +299,30 @@ void GLObject3D::Load(const char * filename)
 	}
 }
 
+/**
+	No using for now, reserved for extension
+*/
 void GLObject3D::LoadVertex(std::stringstream &line)
 {
 }
 
+/**
+	No using for now, reserved for extension
+*/
 void GLObject3D::LoadUV(std::stringstream &line)
 {
 }
 
+/**
+	No using for now, reserved for extension
+*/
 void GLObject3D::LoadNormal(std::stringstream &line)
 {
 }
 
+/**
+	No using for now, reserved for extension
+*/
 void GLObject3D::LoadFace(std::stringstream &line)
 {
 }

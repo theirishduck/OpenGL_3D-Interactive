@@ -7,11 +7,12 @@ CCamera::CCamera(){
 	m_PosY = 0; 
 	m_PosZ = -5;
 
-	m_UpX = 0; 
-	m_UpY = 1; 
-	m_UpZ = 0;
+	m_FinalUpX = m_UpX = 0; 
+	m_FinalUpY = m_UpY = 1;
+	m_FinalUpZ = m_UpZ = 0;
 
 	m_AtX = m_AtY = m_AtZ = 0;
+	m_FinalAtX = m_FinalAtY = m_FinalAtZ = 0;
 
 	m_RotateX = m_RotateY = m_RotateZ = 0;
 
@@ -33,8 +34,6 @@ void CCamera::SetPerspective(float fov, float aspect, float nearP, float farP) {
 	m_Aspect = aspect;
 	m_Near = nearP;
 	m_Far = farP;
-
-	//gluPerspective(fov, aspect, nearP, farP);
 }
 
 void CCamera::SetPos(float x, float y, float z) {
@@ -67,6 +66,16 @@ void CCamera::SetScaleX(float x)
 void CCamera::SetScaleY(float y)
 {
 	m_scaleY = y;
+}
+
+void CCamera::SetShift(float f)
+{
+	m_shift = f;
+}
+
+float CCamera::GetShift() const
+{
+	return m_shift;
 }
 
 void CCamera::RotateX(float angle)
@@ -102,6 +111,21 @@ void CCamera::SetFov(float fov)
 float CCamera::GetFov()
 {
 	return m_Fov;
+}
+
+float CCamera::GetAspect() const
+{
+	return m_Aspect;
+}
+
+glm::vec3 CCamera::GetLookat()
+{
+	return glm::vec3(m_FinalAtX, m_FinalAtY, m_FinalAtZ);
+}
+
+glm::vec3 CCamera::GetUp()
+{
+	return glm::vec3(m_FinalUpX, m_FinalUpY, m_FinalUpZ);
 }
 
 void CCamera::GetFront(float * front)
@@ -174,7 +198,7 @@ void CCamera::Update(){
 	float shift_vY = finalX*upZ-finalZ*upX;
 	float shift_vZ = finalY*upX-finalX*upY;
 	
-	float shift_vL = sqrt(shift_vX*shift_vX+shift_vY*shift_vY+shift_vZ*shift_vZ);
+	float shift_vL = sqrt(shift_vX * shift_vX + shift_vY * shift_vY + shift_vZ * shift_vZ);
 	shift_vX = m_shift*shift_vX/shift_vL;
 	shift_vY = m_shift*shift_vY/shift_vL;
 	shift_vZ = m_shift*shift_vZ/shift_vL;
@@ -191,10 +215,18 @@ void CCamera::Update(){
 	finalY += shift_vY;
 	finalZ += shift_vZ;
 
+	m_FinalAtX = m_AtX + shift_vX;
+	m_FinalAtY = m_AtY + shift_vY;
+	m_FinalAtZ = m_AtZ + shift_vZ;
+
+	m_FinalUpX = upX;
+	m_FinalUpY = upY;
+	m_FinalUpZ = upZ;
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(finalX, finalY, finalZ, 
-		m_AtX + shift_vX, m_AtY + shift_vY, m_AtZ + shift_vZ, 
+		m_FinalAtX, m_FinalAtY, m_FinalAtZ,
 		upX, upY, upZ);
 	 
 }

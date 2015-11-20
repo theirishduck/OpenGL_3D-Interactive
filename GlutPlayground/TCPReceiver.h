@@ -21,6 +21,10 @@ struct TCPReceiver_Exception
 	}
 };
 
+/**
+	A simple one to one receiver in TCP protocol.
+	Support both Non-Blocking I/O and Blocking I/O
+*/
 class TCPReceiver
 {
 public:

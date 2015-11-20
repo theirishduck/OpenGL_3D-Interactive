@@ -49,16 +49,18 @@ namespace Config
 	static unsigned short g_port = 8000;
 	static unsigned int g_backlog = 5;
 	static unsigned int g_recvRate = 50;
+	static bool g_blockReceive = false;
 
 	// Scene scale definition
-	static float g_touchDistance = 0.5f;
+	static float g_touchDistance = 0.001f;
+	static float g_model_touchDistance = 0.5f;
 
-	static float g_main_scene_scale = 50.0f;
-	static float g_main_scene_leftmost_position = -7.0f;
-	static float g_main_scene_uppermost_position = -0.5f;
-	static float g_main_scene_frontmost_position = -1.5f;
+	static float g_main_scene_scale = 10.0f;
+	static float g_main_scene_leftmost_position = -9.0f;
+	static float g_main_scene_uppermost_position = -2.0f;
+	static float g_main_scene_frontmost_position = -0.0f;
 	static float g_main_scene_button_size = 4.0f;
-	static float g_main_scene_button_padding = 1.0f;
+	static float g_main_scene_button_padding = 3.0f;
 	static float g_main_camera_fov = 50.0f;
 	static float g_main_camera_near = 0.5f;
 	static float g_main_camera_far = 25.0f;
@@ -78,8 +80,8 @@ namespace Config
 	static bool g_main_mouse_visiable = true;
 	static bool g_main_mouse_physical_enable = false;
 
-	static float g_model_scene_scale = 4.0f;
-	static float g_model_camera_fov = 45.0f;
+	static float g_model_scene_scale = 1.0f;
+	static float g_model_camera_fov = 50.0f;
 	static float g_model_camera_near_factor = 0.1f;
 	static float g_model_camera_far_factor = 4.0f;
 	static float g_model_camera_posZ_factor = 1.5f;
@@ -91,11 +93,13 @@ namespace Config
 	static float g_model_mouse_startY = 0.0f;
 	static float g_model_mouse_startZ = 0.0f;
 
-	static float g_keyboard_scene_scale = 4.0f;
-	static float g_keyboard_scene_leftmost_position = -3.0f;
-	static float g_keyboard_scene_lowermost_position = -4.0f;
-	static float g_keyboard_scene_frontmost_position = -0.2f;
-	static float g_keyboard_scene_button_size = 2.0f;
+	static float g_keyboard_scene_scale = 6.0f;
+	static float g_keyboard_scene_leftmost_position = -4.5f;
+	static float g_keyboard_scene_lowermost_position = -6.0f;
+	static float g_keyboard_scene_frontmost_position = -0.0f;
+	static float g_keyboard_scene_button_size = 3.0f;
+	static float g_keyboard_scene_button_paddingX = 0.0f;
+	static float g_keyboard_scene_button_paddingY = 0.0f;
 	static float g_keyboard_camera_fov = 50.0f;
 	static float g_keyboard_camera_scaleX = 1.0f;
 	static float g_keyboard_camera_scaleY = 1.0f;
@@ -118,10 +122,10 @@ namespace Config
 	static bool g_keyboard_mouse_physical_enable = false;
 
 	static float g_photo_scene_scale = 1.0f;
-	static float g_photo_mouse_switch_delta = 10.0f;
+	static float g_photo_mouse_switch_delta = 0.1f;
 
 	// Define how fast the mouse move can turn back
-	static float g_scene_back_delta = 0.5f;
+	static float g_scene_back_delta = 0.1f;
 
 	// System 
 	static int g_mode = MODE_LOCAL;

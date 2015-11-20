@@ -4,9 +4,24 @@
 #include "FileUtil.h"
 #include "GlutWindow.h"
 
+/**
+	Store all GlutWindow instance
+*/
 GlutWindow *GlutWindow::g_glutWindowPool[MAX_GLUTWINDOW] = { 0 };
+
+/**
+	Store status of all GlutWindow.
+	If g_enable[i] is false and g_glutWindowPool[i] is not null, destroy window before display.
+*/
 bool GlutWindow::g_enable[MAX_GLUTWINDOW] = { 0 };
 
+/**
+	A safer approach to access GlutWindow instance.
+	Use this function to access GlutWindow instance in your code.
+	Never directly access g_glutWindowPool.
+
+	@param gd index in g_glutWindowPool
+*/
 GlutWindow *GlutWindow::GetGlutWindow(GlutWindowDescriptor gd)
 {
 	if (!IsValid(gd))
@@ -18,11 +33,21 @@ GlutWindow *GlutWindow::GetGlutWindow(GlutWindowDescriptor gd)
 	return g_glutWindowPool[gd];
 }
 
+/**
+	Check gd is in the range if g_glutWindowPool
+
+	@param gd index in g_glutWindowPool
+*/
 bool GlutWindow::IsValid(GlutWindowDescriptor gd)
 {
 	return (gd >= 0 && gd < MAX_GLUTWINDOW);
 }
 
+/**
+	Mark g_enable of passing
+
+	@param window GlutWindow instance we want to destroy
+*/
 void GlutWindow::DeleteGlutWindow(GlutWindow *window)
 {
 	if (window != NULL)
@@ -39,6 +64,10 @@ void GlutWindow::DeleteGlutWindow(GlutWindow *window)
 	}
 }
 
+/**
+	Function pointer friendly function.
+	We set this for all glutDisplayFunc of all windows
+*/
 void GlutWindow::GlutDisplay()
 {
 	GlutWindowDescriptor gd = glutGetWindow();
@@ -56,6 +85,10 @@ void GlutWindow::GlutDisplay()
 
 }
 
+/**
+	Function pointer friendly function.
+	We set this for all glutReshape of all windows
+*/
 void GlutWindow::GlutReshape(int w, int h)
 {
 	GlutWindowDescriptor curGd = glutGetWindow();
@@ -70,6 +103,10 @@ void GlutWindow::GlutReshape(int w, int h)
 	}
 }
 
+/**
+	Function pointer friendly function.
+	We set this for all glutKeyboardFunc of all windows
+*/
 void GlutWindow::GlutKeyboardHandler(unsigned char key, int x, int y)
 {
 	GlutWindowDescriptor curGd = glutGetWindow();
@@ -80,6 +117,10 @@ void GlutWindow::GlutKeyboardHandler(unsigned char key, int x, int y)
 	}
 }
 
+/**
+	Function pointer friendly function.
+	We set this for all glutSpecialKeyFunc of all windows
+*/
 void GlutWindow::GlutSpecialKeyHandler(int key, int x, int y)
 {
 	printf("GlutWindow::GlutSpecialKeyHandler(): %d\n", glutGetWindow());
@@ -92,6 +133,10 @@ void GlutWindow::GlutSpecialKeyHandler(int key, int x, int y)
 	}
 }
 
+/**
+	Function pointer friendly function.
+	We set this for all glutMouseFunc of all windows
+*/
 void GlutWindow::GlutMouseHandler(int button, int state, int x, int y)
 {
 	printf("GlutWindow::GlutMouseHandler(): %d\n",glutGetWindow());
@@ -104,6 +149,10 @@ void GlutWindow::GlutMouseHandler(int button, int state, int x, int y)
 	}
 }
 
+/**
+	Function pointer friendly function.
+	We set this for all glutMouseWheelFunc of all windows
+*/
 void GlutWindow::GlutMouseWheelHandler(int wheel, int direction, int x, int y)
 {
 	GlutWindowDescriptor curGd = glutGetWindow();
@@ -114,6 +163,10 @@ void GlutWindow::GlutMouseWheelHandler(int wheel, int direction, int x, int y)
 	}
 }
 
+/**
+	Function pointer friendly function.
+	We set this for all glutMotionFunc of all windows
+*/
 void GlutWindow::GlutMotionHandler(int x, int y)
 {
 	GlutWindowDescriptor curGd = glutGetWindow();
@@ -124,6 +177,10 @@ void GlutWindow::GlutMotionHandler(int x, int y)
 	}
 }
 
+/**
+	Function pointer friendly function.
+	We set this for all glutPassiveMotionFunc of all windows
+*/
 void GlutWindow::GlutPassiveMotionHandler(int x, int y)
 {
 	GlutWindowDescriptor curGd = glutGetWindow();
@@ -146,6 +203,12 @@ GlutWindow::~GlutWindow()
 	glutDestroyWindow(m_gd);
 }
 
+/**
+	Default Reshape function for all GlutWindows
+	
+	@param w width
+	@param h height
+*/
 int GlutWindow::Reshape(int w, int h)
 {
 	GlutWindowDescriptor curGd = glutGetWindow();

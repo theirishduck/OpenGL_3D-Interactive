@@ -4,6 +4,10 @@
 #include "GLScene3D.h"
 #include "Space3D.h"
 
+/**
+	A space plane class.
+	Here we use it to perform functions of button.
+*/
 class GLPlane3D
 	: public GLObject3D
 {
@@ -25,13 +29,19 @@ public:
 	glm::vec3 GetNormal() const;
 
 private:
+
+	/** Arbitrary two 3D vectors can determine a plane */
 	glm::vec3 m_u;
 	glm::vec3 m_v;
 	glm::vec3 m_normal;
 
+	/** Used in IsOnto(), this value determine a close-enough distance */
 	float m_touchDistance;
 
-	// 3D Plane E
+	/** 
+		3D Plane Equation
+		ax + by + cz + d = 0
+	*/
 	GLfloat a;
 	GLfloat b;
 	GLfloat c;

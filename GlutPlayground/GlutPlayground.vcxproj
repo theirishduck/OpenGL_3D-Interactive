@@ -69,8 +69,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\freeglut\include;C:\opencv\build\include\opencv2;C:\opencv\build\include\opencv;C:\opencv\build\include;C:\glew-1.13.0\include;C:\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv\build\x86\vc12\lib;C:\glew-1.13.0\lib\Release\Win32;C:\freeglut\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\freeglut\include;C:\opencv\build\include\opencv2;C:\opencv\build\include\opencv;C:\opencv\build\include;$(ProjectDir)\glew-1.13.0\include;$(ProjectDir)\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\opencv\build\x86\vc12\lib;$(ProjectDir)\glew-1.13.0\lib\Release\Win32;$(ProjectDir)\freeglut\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -126,9 +126,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FileUtil.cpp" />
     <ClCompile Include="GLDepthScene.cpp" />
-    <ClCompile Include="GLModel3D.cpp" />
     <ClCompile Include="global.cpp" />
-    <ClCompile Include="GLObjectUI.cpp" />
     <ClCompile Include="GLPlane3D.cpp" />
     <ClCompile Include="GLScene.cpp" />
     <ClCompile Include="GlutMainWindow.cpp" />
@@ -146,12 +144,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CircularBuffer.h" />
     <ClInclude Include="FileUtil.h" />
     <ClInclude Include="GLData.h" />
     <ClInclude Include="GLDepthScene.h" />
-    <ClInclude Include="GLModel3D.h" />
     <ClInclude Include="global.h" />
-    <ClInclude Include="GLObjectUI.h" />
     <ClInclude Include="GLPlane3D.h" />
     <ClInclude Include="GLScene.h" />
     <ClInclude Include="GlutMainWindow.h" />

@@ -11,8 +11,18 @@
 
 class GLScene3D;
 class GLObject3D;
+
 typedef void(*CallbackOnto)(GLScene3D *, GLObject3D *);
 
+/**
+	Basically, it define all properties of a 3D object. 
+	There has been ObjModel class. It works well and be compatiable with a little revision.
+	So, for now, not until you got some issue of ObjModel class, I won't suggest you discard ObjModel class.
+	
+	In other word, this class just define a 3D object with one texture and a list of vertex, uv, normals, not including some more structural concept like Face, Group...etc
+
+	As for event handling, since we want to check some object in the scene is touched, we define two event Onto, OntoExit
+*/
 class GLObject3D
 {
 public:
@@ -28,6 +38,7 @@ public:
 	void AddVertex(glm::vec3 vertex);
 
 	void SetVisiable(bool b);
+	void SetIgnoreLighting(bool b);
 	void SetPos(GLfloat x, GLfloat y, GLfloat z);
 	void SetColor(GLfloat r, GLfloat g, GLfloat b);
 	void SetTexture(const char *filename);
@@ -53,6 +64,7 @@ protected:
 	std::string m_objectName;
 
 	bool m_visiable;
+	bool m_ignoreLighting;
 	int m_renderType; // QUAD, TRIANGLE...
 	glm::vec3 m_pos;
 

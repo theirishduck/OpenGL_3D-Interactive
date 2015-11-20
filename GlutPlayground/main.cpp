@@ -5,10 +5,6 @@
 #include <cstdio>
 #include <cmath>
 
-#include <cv.h>
-#include <cxcore.h>
-#include <highgui.h>
-
 #include <GL\glew.h>
 #include <GL\freeglut.h>
 
@@ -24,33 +20,46 @@
 #include "Camera.h"
 #include "FileUtil.h"
 #include "global.h"
+#include "CircularBuffer.h"
 
 #include "TCPReceiver.h"
 
 using namespace Config;
 
-/*
-	The following index define start interval of each scene set.
-	Index of each scene set is their index multiply SET_GAP
-
-	0       1       2
-	|_ _ _ _|_ _ _ _|
-	 SET_GAP SET_GAP
+/**
+	Predefined index of main scene set, here we define MAINSET as 0
 */
 #define MAINSET_INDEX 0
+
+/**
+	Predefined index of main scene set, here we define MAINSET as 0
+*/
 #define MODELSET_INDEX 1
+
+/**
+	Predefined index of main scene set, here we define MAINSET as 0
+*/
 #define KEYBOARDSET_INDEX 2
+
+/**
+	Predefined index of main scene set, here we define MAINSET as 0
+*/
 #define PHOTOSET_INDEX 3
 
-/*
+/**
 	Since we consider two scene as a cell of window, so multiply 2 is number of scenes
 */
 #define SET_GAP g_windowRows * g_windowCols * 2
 
-/*
-	Expected receiving data structure
+/**
+	Number of float in a UV map for a plane
 */
-typedef struct Point3{
+#define UV_SIZE 8
+
+/**
+	Expected receiving data structure, we consider (x,y,z) as user 's hand position in the 3D space
+*/
+struct Point3{
 	float x;
 	float y;
 	float z;
@@ -59,57 +68,86 @@ typedef struct Point3{
 	{
 		return os << "(" << p.x << ", " << p.y << ", " << p.z << ")";
 	}
-}Point3;
+};
 
-/*
-	*_TEXTURES is a set of filename of image which will be loaded as texture
+/**
+	Image file path of background image of main scene 
 */
 static const char *MAINSCENE_BACKGROUND_IMG = "img/bg.png";
 
+/**
+	Image file path of plane image of main scene
+*/
 static const char *MAINSCENE_TEXTURES[] = {
 	"img/main_1.png",
 	"img/main_2.png",
 	"img/main_3.png"
 };
 
-static const char *KEYBOARD_TEXTURE = "img/kb.png";
-
-/*
-	The following UV_LEFT, UV_RIGHT, UV_SIZE, IMGS is for PhotoScene
-	UV_LEFT, UV_RIGHT define a UV map for two scene respectively
-	UV_SIZE is number of value in UV_LEFT, UV_RIGHT
-	IMGS is a set of filename which we want to show
+/**
+	Image file path of plane image of keyboard scene
+	(We tweak UV map to load each part of this image, so we only need to load this image once)
 */
-static GLfloat UV_LEFT[] = {
-	0.0f, 0.0f,
-	0.5f, 0.0f,
-	0.5f, 1.0f,
-	0.0f, 1.0f
-};
+static const char *KEYBOARD_TEXTURE = "img/kb.jpg";
 
-static GLfloat UV_RIGHT[] = {
-	0.5f, 0.0f,
-	1.0f, 0.0f,
-	1.0f, 1.0f,
-	0.5f, 1.0f
-};
-
-static const int UV_SIZE = 8;
-
+/**
+	Image file paths of plane image of photo scene
+*/
 static const char *IMGS[] = {
-	"img/pic1.png",
-	"img/pic2.png",
-	"img/pic3.png",
+	"img/pic1_1.png",
+	"img/pic1_2.png",
+	"img/pic1_3.png",
+	"img/pic1_4.png",
+	"img/pic2_1.png",
+	"img/pic2_2.png",
+	"img/pic2_3.png",
+	"img/pic2_4.png",
+	"img/pic3_1.png",
+	"img/pic3_2.png",
+	"img/pic3_3.png",
+	"img/pic3_4.png",
 };
 
+/**
+	The main window of this program
+*/
 GlutMainWindow *g_MainWindow;
+
+/**
+	The main multi sub scene window of this program
+	(We use multi-viewport instead of multi-subwindow)
+*/
 GlutSubMultiSceneWindow *g_mainMultiSubSceneWindow;
+
+/**
+	The object used to receive input data from other program
+*/
 TCPReceiver g_tcpReceiver;
 
+/**
+	A scene collections of main scene
+*/
 std::vector<GLScene*> g_mainSet;
+
+/**
+	A scene collections of model scene
+*/
 std::vector<GLScene*> g_modelSet;
+
+/**
+	A scene collections of keyboard scene
+*/
 std::vector<GLScene*> g_keyboardSet;
+
+/**
+	A scene collections of photo scene
+*/
 std::vector<GLScene*> g_photoSet;
+
+/*
+	Enable mouse input
+**/
+bool g_enableMouseEnable = true;
 
 void LoadMainSet(int setNum);
 void LoadModelSet(int setNum);
@@ -117,8 +155,8 @@ void LoadKeyboardSet(int setNum);
 void LoadPhotoSet(int setNum);
 
 ObjModel *CreateModel(GLScene3D *scene);
-GLScene3D *CreateKeyboardScene(GlutSubWindow *subWindow);
-GLScene3D *CreateMainScene(GlutSubWindow *subWindow);
+GLScene3D *CreateKeyboardScene(GlutSubWindow *subWindow, float shift);
+GLScene3D *CreateMainScene(GlutSubWindow *subWindow, float shift);
 
 void MainSceneModelCallback(GLScene3D *scene, GLObject3D *obj);
 void MainSceneKeyboardUseCallback(GLScene3D *scene, GLObject3D *obj);
@@ -135,7 +173,6 @@ void KeyboardSceneOntoExitCallback(GLScene3D *scene, GLObject3D *obj);
 void PhotoSceneMouseMoveCallback(GLScene *scene, float dx, float dy, float dz);
 
 void MainWindowTcpTimerFunc(int data);
-void MainWindowLocalTimerFunc(int data);
 
 void InitTCPReceiver();
 
@@ -209,14 +246,23 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
+/**
+	Load all scenes for main scenes set
+
+	@param setNum number of scenes in a set
+*/
 void LoadMainSet(int setNum)
 {
 	/*
-	Load Main Scene
+		Load Main Scene
 	*/
+	float shiftOffset = (setNum % 2 == 0) ? -(1.0f * (setNum / 2) - 0.5f) : 0;	
+	float radius = ((g_main_scene_button_size + g_main_scene_button_padding) * 3) / 2;
 	for (int i = 0; i < setNum; i++)
 	{
-		GLScene3D *scene = CreateMainScene(g_mainMultiSubSceneWindow);
+		GLScene3D *scene = CreateMainScene(g_mainMultiSubSceneWindow, shiftOffset * 0.1 * radius * 0);
+		shiftOffset = (setNum % 2 == 0) ? shiftOffset + 1.0f : shiftOffset + 1.0f;
+		scene->SetIgnoreZ(true);
 		try
 		{
 			scene->SetBackgroundImage(MAINSCENE_BACKGROUND_IMG);
@@ -232,6 +278,11 @@ void LoadMainSet(int setNum)
 	}
 }
 
+/**
+	Load all scenes for model scenes set
+
+	@param setNum number of scenes in a set
+*/
 void LoadModelSet(int setNum)
 {
 	/*
@@ -242,10 +293,12 @@ void LoadModelSet(int setNum)
 		g_model_mouse_startX,
 		g_model_mouse_startY,
 		g_model_mouse_startZ);
-
+	scene->SetIgnoreZ(true);
+		
 	ObjModel *model = CreateModel(scene);
 	if (model != NULL)
 	{
+		float shiftOffset = -1.5;
 		for (int i = 0; i < setNum; i++)
 		{
 			scene->AddObject(model);
@@ -271,11 +324,14 @@ void LoadModelSet(int setNum)
 				g_model_camera_upX, 
 				g_model_camera_upY, 
 				g_model_camera_upZ);
-			camera->RotateY(i * g_model_rotate_angle);
 			camera->SetRotateEnable(false);
+			
+			camera->SetShift(model->max_radius * shiftOffset * 0.1f);
+			shiftOffset += 1.0f;
 
 			scene->SetCamera(camera);
 			scene->SetSpaceScale(g_model_scene_scale);
+			scene->SetPositionLightPos(glm::vec3(camera->GetPosX(), camera->GetPosY(), camera->GetPosZ()));
 			scene->ResetMouse();
 			scene->SetPhysicalMouseEnable((g_mode == MODE_LOCAL));
 
@@ -297,6 +353,11 @@ void LoadModelSet(int setNum)
 	g_modelSet[0]->SetMouseMoveCallback(ModelSceneMouseMoveCallback);
 }
 
+/**
+	Load all scenes for keyboard scenes set
+
+	@param setNum number of scenes in a set
+*/
 void LoadKeyboardSet(int setNum)
 {
 	/*
@@ -304,7 +365,8 @@ void LoadKeyboardSet(int setNum)
 	*/
 	for (int i = 0; i < setNum; i++)
 	{
-		GLScene3D *scene = CreateKeyboardScene(g_mainMultiSubSceneWindow);
+		GLScene3D *scene = CreateKeyboardScene(g_mainMultiSubSceneWindow, 0);
+		scene->SetIgnoreZ(true);
 		if (scene != NULL)
 		{
 			scene->SetPhysicalMouseEnable(false);
@@ -318,45 +380,73 @@ void LoadKeyboardSet(int setNum)
 	}
 }
 
+/**
+	Load all scenes for photo scenes set
+
+	@param setNum number of scenes in a set
+*/
 void LoadPhotoSet(int setNum)
 {
-	/*
-	Load Photo scene
-	*/
+	static GLfloat UV_LEFT[] = {
+		0.0f, 0.0f,
+		0.5f, 0.0f,
+		0.5f, 1.0f,
+		0.0f, 1.0f
+	};
+
+	static GLfloat UV_RIGHT[] = {
+		0.5f, 0.0f,
+		1.0f, 0.0f,
+		1.0f, 1.0f,
+		0.5f, 1.0f
+	};
+
 	try
 	{
-		std::vector<GLObject3D*> photoObjectsLeft;
-		std::vector<GLObject3D*> photoObjectsRight;
-
-		GLScene3D *scene_left = new GLScene3D(g_mainMultiSubSceneWindow);
-		GLScene3D *scene_right = new GLScene3D(g_mainMultiSubSceneWindow);
-
-		for (int i = 0; i < 3; i++)
-		{
-			GLPlane3D *plane_left = new GLPlane3D(
-				scene_left,
-				glm::vec3(-1.0f, -1.0f, 0.0f),
-				glm::vec3(1.0f, 1.0f, 1.0f),
-				2.0f, 2.0f);
-
-			GLPlane3D *plane_right = new GLPlane3D(
-				scene_right,
-				glm::vec3(-1.0f, -1.0f, 0.0f),
-				glm::vec3(1.0f, 1.0f, 1.0f),
-				2.0f, 2.0f);
-
-			plane_left->SetTexture(IMGS[i], UV_LEFT, UV_SIZE);
-			plane_left->SetVisiable(true);
-
-			plane_right->SetTexture(IMGS[i], UV_RIGHT, UV_SIZE);
-			plane_right->SetVisiable(true);
-
-			photoObjectsLeft.push_back(plane_left);
-			photoObjectsRight.push_back(plane_right);
-		}
-
 		for (int i = 0; i < setNum; i++)
 		{
+			std::vector<GLObject3D*> photoObjectsLeft;
+			std::vector<GLObject3D*> photoObjectsRight;
+
+			GLScene3D *scene_left = new GLScene3D(g_mainMultiSubSceneWindow);
+			GLScene3D *scene_right = new GLScene3D(g_mainMultiSubSceneWindow);
+			scene_left->SetIgnoreZ(true);
+			scene_right->SetIgnoreZ(true);
+			
+			// Load images
+			for (int j = 0; j < 3; j++)
+			{
+				GLPlane3D *plane_left = new GLPlane3D(
+					scene_left,
+					glm::vec3(-1.0f, -1.0f, 0.0f),
+					glm::vec3(1.0f, 1.0f, 1.0f),
+					2.0f, 2.0f);
+
+				GLPlane3D *plane_right = new GLPlane3D(
+					scene_right,
+					glm::vec3(-1.0f, -1.0f, 0.0f),
+					glm::vec3(1.0f, 1.0f, 1.0f),
+					2.0f, 2.0f);
+
+				if (j * 4 + i >= 12)
+				{
+					std::cerr << "LoadPhotoSet(): support up to 4 views, if you want to support more, modify the code (See documentation)." << std::endl;
+					system("pause");
+					exit(-1);
+				}
+
+				plane_left->SetTexture(IMGS[j * 4 + i], UV_LEFT, UV_SIZE);
+				plane_left->SetVisiable(true);
+				plane_left->SetIgnoreLighting(true);
+
+				plane_right->SetTexture(IMGS[j * 4 + i], UV_RIGHT, UV_SIZE);
+				plane_right->SetVisiable(true);
+				plane_right->SetIgnoreLighting(true);
+
+				photoObjectsLeft.push_back(plane_left);
+				photoObjectsRight.push_back(plane_right);
+			}
+
 			if (scene_left != NULL && scene_right != NULL)
 			{
 				for (std::vector<GLObject3D*>::iterator it = photoObjectsLeft.begin(); it != photoObjectsLeft.end(); it++)
@@ -367,15 +457,12 @@ void LoadPhotoSet(int setNum)
 				scene_left->SetPhysicalMouseEnable(false);
 				scene_right->SetPhysicalMouseEnable(false);
 				scene_left->SetMouseMoveCallback(PhotoSceneMouseMoveCallback);
-				scene_right->SetMouseMoveCallback(PhotoSceneMouseMoveCallback);
+
 				scene_left->SetDisplayObjectsNum(1);
 				scene_right->SetDisplayObjectsNum(1);
 
 				g_photoSet.push_back(scene_left);
 				g_photoSet.push_back(scene_right);
-
-				scene_left = new GLScene3D(g_mainMultiSubSceneWindow);
-				scene_right = new GLScene3D(g_mainMultiSubSceneWindow);
 			}
 			else
 			{
@@ -390,7 +477,12 @@ void LoadPhotoSet(int setNum)
 
 }
 
-GLScene3D *CreateMainScene(GlutSubWindow *subWindow)
+/**
+	Create a main scene for a sub window
+
+	@param subWindow the subwindow keyboard scene belong to
+*/
+GLScene3D *CreateMainScene(GlutSubWindow *subWindow, float shift)
 {
 	GLScene3D *main_scene = new GLScene3D(subWindow, 
 		g_main_mouse_startX, 
@@ -409,6 +501,7 @@ GLScene3D *CreateMainScene(GlutSubWindow *subWindow)
 				COLOR_WHITE,
 				g_main_scene_button_size);
 			planes[i]->SetTexture(MAINSCENE_TEXTURES[i]);
+			planes[i]->SetIgnoreLighting(true);
 			main_scene->AddObject(planes[i]);
 		}
 
@@ -426,6 +519,7 @@ GLScene3D *CreateMainScene(GlutSubWindow *subWindow)
 		camera->SetAt(g_main_camera_atX, g_main_camera_atY, g_main_camera_atZ);
 		camera->SetUp(g_main_camera_upX, g_main_camera_upY, g_main_camera_upZ);
 		camera->SetRotateEnable(g_main_camera_rotatable);
+		camera->SetShift(shift);
 
 		main_scene->SetSpaceScale(g_main_scene_scale);
 		main_scene->SetCamera(camera);
@@ -440,9 +534,17 @@ GLScene3D *CreateMainScene(GlutSubWindow *subWindow)
 	return main_scene;
 }
 
-GLScene3D *CreateKeyboardScene(GlutSubWindow *subWindow)
+/**
+	Create a keyboard scene for a sub window
+
+	@param subWindow the subwindow keyboard scene belong to
+*/
+GLScene3D *CreateKeyboardScene(GlutSubWindow *subWindow, float shift)
 {
-	GLScene3D *scene = new GLScene3D(subWindow, 0, 0, 3.0f);
+	GLScene3D *scene = new GLScene3D(subWindow, 
+		g_keyboard_mouse_startX,
+		g_keyboard_mouse_startY, 
+		g_keyboard_mouse_startZ);
 	try
 	{
 		for (int i = 0; i < 4; i++)
@@ -458,13 +560,14 @@ GLScene3D *CreateKeyboardScene(GlutSubWindow *subWindow)
 
 				GLPlane3D *plane = new GLPlane3D(
 					scene,
-					glm::vec3(g_keyboard_scene_leftmost_position + j * g_keyboard_scene_button_size, 
-						g_keyboard_scene_lowermost_position + i * g_keyboard_scene_button_size, 
+					glm::vec3(g_keyboard_scene_leftmost_position + j * (g_keyboard_scene_button_size + g_keyboard_scene_button_paddingX), 
+						g_keyboard_scene_lowermost_position + i * (g_keyboard_scene_button_size + g_keyboard_scene_button_paddingY),
 						g_keyboard_scene_frontmost_position),
 					COLOR_WHITE,
 					g_keyboard_scene_button_size);
 
 				plane->SetTexture(KEYBOARD_TEXTURE, uv, UV_SIZE);
+				plane->SetIgnoreLighting(true);
 				plane->SetCallbackOnto(KeyboardSceneOntoCallback);
 				plane->SetCallbackOntoExit(KeyboardSceneOntoExitCallback);
 				scene->AddObject(plane);
@@ -481,6 +584,7 @@ GLScene3D *CreateKeyboardScene(GlutSubWindow *subWindow)
 		camera->SetAt(g_keyboard_camera_atX, g_keyboard_camera_atY, g_keyboard_camera_atZ);
 		camera->SetUp(g_keyboard_camera_upX, g_keyboard_camera_upY, g_keyboard_camera_upZ);
 		camera->SetRotateEnable(g_keyboard_camera_rotatable);
+		camera->SetShift(shift);
 
 		scene->SetSpaceScale(g_keyboard_scene_scale);
 		scene->SetCamera(camera);
@@ -497,6 +601,12 @@ GLScene3D *CreateKeyboardScene(GlutSubWindow *subWindow)
 	return scene;
 }
 
+/**
+	Create a model in context of a scene
+	(I don't write "create a model for a scene" since you can put this model in other scenes which in the same sub window of current scene(in other word, they share the same context))
+	
+	@param scene scene which this model will use
+*/
 ObjModel *CreateModel(GLScene3D *scene)
 {
 	ObjModel *model = new ObjModel(scene);
@@ -515,6 +625,16 @@ ObjModel *CreateModel(GLScene3D *scene)
 	return model;
 }
 
+/**
+	Callback function for the plane (button) in the main scene. 
+	Thic function make user get into model scene
+	
+	@param scene the scene which plane belong to
+	@param obj the touched object 
+
+	@see MainSceneKeyboardUseCallback(GLScene3D *scene, GLObject3D *obj)
+	@see MainScenePhotoCallback(GLScene3D *scene, GLObject3D *obj)
+*/
 void MainSceneModelCallback(GLScene3D *scene, GLObject3D *obj)
 {
 	std::cout << "MainSceneModelCallback():" << std::endl;
@@ -522,6 +642,16 @@ void MainSceneModelCallback(GLScene3D *scene, GLObject3D *obj)
 	g_mainMultiSubSceneWindow->SetStartSceneIndex(MODELSET_INDEX * SET_GAP);
 }
 
+/**
+	Callback function for the plane (button) in the main scene. 
+	Thic function make user get into keyboard scene
+
+	@param scene the scene which plane belong to
+	@param obj the touched object
+
+	@see MainSceneModelCallback(GLScene3D *scene, GLObject3D *obj)
+	@see MainScenePhotoCallback(GLScene3D *scene, GLObject3D *obj)
+*/
 void MainSceneKeyboardUseCallback(GLScene3D *scene, GLObject3D *obj)
 {
 	std::cout << "MainSceneKeyboardUseCallback():" << std::endl;
@@ -529,6 +659,16 @@ void MainSceneKeyboardUseCallback(GLScene3D *scene, GLObject3D *obj)
 	g_mainMultiSubSceneWindow->SetStartSceneIndex(KEYBOARDSET_INDEX * SET_GAP);
 }
 
+/**
+	Callback function for the plane (button) in the main scene.
+	Thic function make user get into photo scene
+
+	@param scene the scene which plane belong to
+	@param obj the touched object
+
+	@see MainSceneModelCallback(GLScene3D *scene, GLObject3D *obj)
+	@see MainSceneKeyboardCallback(GLScene3D *scene, GLObject3D *obj)
+*/
 void MainScenePhotoCallback(GLScene3D *scene, GLObject3D *obj)
 {
 	std::cout << "MainScenePhotoCallback():" << std::endl;
@@ -536,27 +676,82 @@ void MainScenePhotoCallback(GLScene3D *scene, GLObject3D *obj)
 	g_mainMultiSubSceneWindow->SetStartSceneIndex(PHOTOSET_INDEX * SET_GAP);
 }
 
+/**
+	Callback function for the OnMouseMove event at the keyboard scene
+	If abs(dy) is larger than g_scene_back_delta, turn back to main scene
+
+	@param scene the scene which object belong to
+	@param dx delta x
+	@param dy delta y
+	@param dz delta z
+
+	@see MainSceneModelCallback(GLScene3D *scene, GLObject3D *obj)
+	@see MainScenePhotoCallback(GLScene3D *scene, GLObject3D *obj)
+*/
 void KeyboardSceneMouseMoveCallback(GLScene * scene, float dx, float dy, float dz)
 {
-	if (std::fabs(dy) > g_scene_back_delta)
+	static CircularBuffer<GLfloat> buff(10);
+	if (buff.diff() > g_scene_back_delta)
 	{
 		printf("KeyboardSceneMouseMoveCallback(): turn back to main scene\n");
+		scene->ResetMouse();
+		g_enableMouseEnable = true;
 		g_mainMultiSubSceneWindow->SetStartSceneIndex(MAINSET_INDEX * SET_GAP);
 	}
 }
 
+/**
+	Callback function for the Onto event at the keyboard scene
+	Onto event is checked when a scene do Update.
+	If m_ontoFlag has been set, scene will not check this object 's onto event.
+
+	This function set keyboard button pressed to blue
+
+	@param scene the scene which object belong to
+	@param obj the touched object
+
+	@see KeyboardSceneOntoExitCallback(GLScene3D * scene, GLObject3D * obj)
+*/
 void KeyboardSceneOntoCallback(GLScene3D * scene, GLObject3D * obj)
 {
 	printf("KeyboardSceneOntoCallback(): touch key\n");
 	obj->SetColor(0.0f, 0.0f, 1.0f);
+	g_enableMouseEnable = false;
 }
 
+/**
+	Callback function for the OntoExit event at the keyboard scene
+	OntoExit event is checked when a scene do Update.
+	If m_ontoFlag has not been set, scene will not check this object 's OntoExit event.
+
+	This function set keyboard button pressed to white
+
+	@param scene the scene which object belong to
+	@param obj the touched object
+
+	@see KeyboardSceneOntoCallback(GLScene3D * scene, GLObject3D * obj)
+*/
 void KeyboardSceneOntoExitCallback(GLScene3D * scene, GLObject3D * obj)
 {
 	printf("KeyboardSceneOntoExitCallback(): exit key\n");
 	obj->SetColor(1.0f, 1.0f, 1.0f);
+	g_enableMouseEnable = true;
 }
 
+/**
+	Callback function for the OnMouseMove event of the photo scene
+	OnMouseMove event is triggerd when OnMouseMove function called
+
+	When dy > g_scene_back_delta, turn back to main scene
+	
+	When dx > g_photo_mouse_switch_delta, switch to next picture
+	When dx < g_photo_mouse_switch_delta, switch to last picture
+
+	@param scene the scene which object belong to
+	@param dx delta x
+	@param dy delta y
+	@param dz delta z
+*/
 void PhotoSceneMouseMoveCallback(GLScene * scene, float dx, float dy, float dz)
 {
 	GLScene3D *scene3d = (GLScene3D*)scene;
@@ -571,17 +766,42 @@ void PhotoSceneMouseMoveCallback(GLScene * scene, float dx, float dy, float dz)
 		int startIndex = scene3d->GetStartIndex();
 		int size = scene3d->GetObjectsSize();
 		
-		scene3d->SetStartIndex((++startIndex) % size);
+		for (std::vector<GLScene*>::iterator it = g_photoSet.begin(); it != g_photoSet.end();)
+		{
+			((GLScene3D*)(*it))->SetStartIndex((startIndex + 1) % size);
+			((GLScene3D*)(*it + 1))->SetStartIndex((startIndex + 1) % size);
+			it++;
+		}
 	}
-	else if(dx < g_photo_mouse_switch_delta)
+	else if(dx < -g_photo_mouse_switch_delta)
 	{
 		int startIndex = scene3d->GetStartIndex();
 		int size = scene3d->GetObjectsSize();
 
-		scene3d->SetStartIndex(((--startIndex) + size) % size);
+		for (std::vector<GLScene*>::iterator it = g_photoSet.begin(); it != g_photoSet.end();)
+		{
+			((GLScene3D*)(*it))->SetStartIndex(((startIndex - 1) + size) % size);
+			((GLScene3D*)(*it + 1))->SetStartIndex(((startIndex - 1) + size) % size);
+			it++;
+		}
 	}
 }
 
+/**
+	Callback function for the Onto event at the model scene
+	Onto event is checked when a scene do Update.
+	If m_ontoFlag has been set, scene will not check this object 's onto event.
+
+	In my design, I set this function for only one scene. 
+	After this scene received event, it broadcast to the others.
+
+	This function will enable camera 's rotation and show the circle of model.
+
+	@param scene the scene which object belong to
+	@param obj the touched object
+
+	@see ModelTouchExitCallback(GLScene3D * scene, GLObject3D * obj)
+*/
 void ModelTouchCallback(GLScene3D * scene, GLObject3D * obj)
 {
 	printf("Touch Model\n");
@@ -600,6 +820,18 @@ void ModelTouchCallback(GLScene3D * scene, GLObject3D * obj)
 	}
 }
 
+/**
+	Callback function for the Onto event at the model scene
+	Onto event is checked when a scene do Update.
+	If m_ontoFlag has been set, scene will not check this object 's onto event.
+
+	This function set keyboard button pressed to blue
+
+	@param scene the scene which object belong to
+	@param obj the touched object
+
+	@see ModelTouchCallback(GLScene3D * scene, GLObject3D * obj)
+*/
 void ModelTouchExitCallback(GLScene3D * scene, GLObject3D * obj)
 {
 	printf("Exit Model\n");
@@ -611,20 +843,41 @@ void ModelTouchExitCallback(GLScene3D * scene, GLObject3D * obj)
 		scene->GetCamera()->SetRotateEnable(false);
 }
 
+/**
+	Callback function for the OnMouseMove event at the model scene
+	
+	If abs(dy) is larger than g_scene_back_delta, turn back to main scene.
+	Every time this function called, reset light position of the scene.
+
+	As the other callback functions for model scene, this function is also set to one scene.
+
+	@param scene the scene which object belong to
+	@param dx delta x
+	@param dy delta y
+	@param dz delta z
+*/
 void ModelSceneMouseMoveCallback(GLScene * scene, float dx, float dy, float dz)
 {
 	printf("\tDelta(%f, %f, %f)\n",dx,dy,dz);
 
 	try
 	{
-		GLScene3D *scene3d = dynamic_cast<GLScene3D*>(scene);
-		GLCamera *camera = scene3d->GetCamera();
-		if (camera != NULL)
+		for (int i = 0; i < 1; i++)
 		{
-			scene3d->SetPositionLightPos(glm::vec3((camera->GetFinalX()),
-				(camera->GetFinalY()),
-				(camera->GetFinalZ())));
+			GLScene3D *scene3d = dynamic_cast<GLScene3D*>(scene);
+			if (scene3d == NULL)
+				continue;
+
+			GLCamera *camera = scene3d->GetCamera();
+			if (camera != NULL)
+			{
+				scene3d->SetPositionLightPos(glm::vec3(
+					(camera->GetFinalX()),
+					(camera->GetFinalY()),
+					(camera->GetFinalZ())));
+			}
 		}
+
 	}
 	catch (bad_cast e)
 	{
@@ -642,8 +895,17 @@ void ModelSceneMouseMoveCallback(GLScene * scene, float dx, float dy, float dz)
 	}
 }
 
+/**
+	Timer function for g_mainWindow. 
+	This function called periodically by GLUT. 
+	Here we use this property to receive data from socket.
+
+	@param data GLUT pass delay when calling
+*/
 void MainWindowTcpTimerFunc(int data)
 {
+	static Point3 lastPoint;
+
 	// Error detect when receiving data
 	// the follwing error will terminate this timer function loop
 	if (g_tcpReceiver.isClosed())
@@ -675,9 +937,14 @@ void MainWindowTcpTimerFunc(int data)
 			else
 			{
 				glm::vec3 mouse = scene->GetMouse();
-				//printf("Mouse(%f, %f, %f)\n", mouse.x, mouse.y, mouse.z);
-				scene->OnMouseMove(p.x, p.y, p.z);
+				if(g_enableMouseEnable)
+					scene->OnMouseMove(p.x, p.y, p.z);
+				else if(p.z - lastPoint.z > 0)
+				{
+					scene->OnMouseMove(p.x, p.y, p.z);
+				}
 			}
+			lastPoint = p;
 		}
 	}
 	catch (TCPReceiver_Exception e)
@@ -703,33 +970,10 @@ void MainWindowTcpTimerFunc(int data)
 	g_MainWindow->SetTimerFunc(MainWindowTcpTimerFunc, g_recvRate);
 }
 
-void MainWindowLocalTimerFunc(int data)
-{
-	static float offset = 0.0001f;
-	try
-	{	
-		offset += offset / 10;
-		for (int i = 0; i < SET_GAP / 2; i++)
-		{
-			GLScene *scene = g_mainMultiSubSceneWindow->GetScene(MODELSET_INDEX * SET_GAP  + i * 2);
-
-			glm::vec3 mouse = scene->GetMouse();
-			
-			printf("Move(%f, %f)\n", mouse.x, offset);
-			printf("\n");
-
-			scene->OnMouseMove(mouse.x, offset, mouse.z);
-		}
-
-		g_MainWindow->SetTimerFunc(MainWindowLocalTimerFunc, g_recvRate);
-	}
-	catch (bad_cast e)
-	{
-		printf("MainWindowLocalTimerFunc(): not using sub-multi window.\n");
-	}
-
-}
-
+/**
+	Initialize g_tcpReceiver.
+	If you set g_blockReceive to true, program will receive data in blocking I/O mode.
+*/
 void InitTCPReceiver()
 {
 	try
@@ -737,7 +981,7 @@ void InitTCPReceiver()
 		g_tcpReceiver = TCPReceiver(g_port);
 		g_tcpReceiver.Listen(g_backlog);
 
-		printf("Waiting sender...\n");
+		printf("InitTCPReceiver(): Waiting sender...\n");
 		bool result = g_tcpReceiver.Accept();
 		if (!result)
 		{
@@ -746,8 +990,10 @@ void InitTCPReceiver()
 			exit(-1);
 		}
 
-		printf("Sender connected\n");
-		g_tcpReceiver.SetNonBlocking();
+		printf("InitTCPReceiver(): Sender connected\n");
+		
+		if(!g_blockReceive)
+			g_tcpReceiver.SetNonBlocking();
 	}
 	catch (TCPReceiver_Exception e)
 	{

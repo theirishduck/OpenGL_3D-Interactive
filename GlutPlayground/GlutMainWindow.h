@@ -4,8 +4,6 @@
 #include "GlutWindow.h"
 #include "GlutSubSceneWindow.h"
 
-#define DEFAULT_FPS 30
-
 class GlutMainWindow :
 	public GlutWindow
 {

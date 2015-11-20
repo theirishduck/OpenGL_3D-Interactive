@@ -1,7 +1,5 @@
 #pragma once
 
-#include <map>
-
 #include <GL\freeglut.h>
 #include "global.h"
 #include "GLScene.h"
@@ -16,6 +14,14 @@ class GlutSubSceneWindow;
 class GlutSubMultiSceneWindow;
 class GlutSubDepthWindow;
 class GLScene;
+
+/**
+	Base class of all Window related class
+
+	This class declare the general functions of all window such as Keyboard, Mouse, GLUT event.
+	Each GlutWindow object contain a GlutWindowDescriptor, this descriptor is an ID in GLUT system.
+	With maintaining this ID, we can manage all GlutWindow objects (Create, Delete, DispatchEvent ... etc)
+*/
 
 class GlutWindow
 {

@@ -7,6 +7,11 @@
 class GLObject3D;
 class GlutWindow;
 
+/**
+	Basic 3D scene class. It support the following functions.
+	- Display GLObject3D
+	- Illumination
+*/
 class GLScene3D :
 	public GLScene
 {
@@ -43,7 +48,10 @@ public:
 protected:
 	std::vector<GLObject3D*> m_objects;
 
+	/** Render function start iterate at this index*/
 	int m_startObjectIndex;
+
+	/** Render function only iterate in this times*/
 	int m_displayObjectsNum;
 
 	GLfloat m_diffuse[4];

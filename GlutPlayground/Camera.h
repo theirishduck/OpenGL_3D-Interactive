@@ -1,10 +1,15 @@
 #pragma once 
 
 #include <GL\freeglut.h>
+#include <glm\glm.hpp>
 
 class GLScene;
 class GLScene3D;
 
+/**
+	Purpose of this class is to make this framework more easily to extend.
+	For now, only CCamera derived from this class
+*/
 class GLCamera
 {
 	friend class GLScene;
@@ -110,9 +115,16 @@ public:
 	void SetAt(float x, float y, float z);
 	void SetScaleX(float x);
 	void SetScaleY(float y);
+	
+	void SetShift(float f);
+	float GetShift() const;
 
 	void SetFov(float fov);
 	float GetFov();
+	float GetAspect() const;
+
+	glm::vec3 GetLookat();
+	glm::vec3 GetUp();
 
 	void RotateX(float angle);
 	void RotateY(float angle);
@@ -127,10 +139,14 @@ public:
 private:
 	float m_shift;
 	float m_UpX, m_UpY, m_UpZ;
+	float m_FinalUpX, m_FinalUpY, m_FinalUpZ;
 	float m_AtX, m_AtY, m_AtZ;
+	float m_FinalAtX, m_FinalAtY, m_FinalAtZ;
 	float m_RotateX, m_RotateY, m_RotateZ;
 	float m_Fov, m_Aspect;
 	float m_FinalFront[3], m_FinalUp[3];
+
+	/** scale x, y is used to change screen aspect*/
 	float m_scaleX;
 	float m_scaleY;
 

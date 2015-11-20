@@ -6,6 +6,11 @@
 #include "GlutSubSceneWindow.h"
 #include "GLScene3D.h"
 
+/**
+	Create GlutSubSceneWindow with this function
+
+	@param mainWindow parent window pointer
+*/
 GlutSubSceneWindow *GlutWindow::CreareGlutSubSceneWindow(GlutMainWindow *mainWindow)
 {
 	if (mainWindow == NULL) {
@@ -51,6 +56,13 @@ GLScene * GlutSubSceneWindow::GetScene() const
 	return m_scene;
 }
 
+/**
+	To display a scene, this function use the following approach.
+
+	Update ---> Setup ---> Render
+
+	If you have some problem about rendering a scene, you should check your code in these three functions.
+*/
 int GlutSubSceneWindow::Display()
 {
 	if (m_scene == NULL)
@@ -62,8 +74,8 @@ int GlutSubSceneWindow::Display()
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		m_scene->Setup(0, 0, m_width, m_height);
 		m_scene->Update(0, 0, m_width, m_height);
+		m_scene->Setup(0, 0, m_width, m_height);
 		m_scene->Render(0, 0, m_width, m_height);
 		
 		glutSwapBuffers();

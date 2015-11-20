@@ -2,6 +2,16 @@
 #include <GL\freeglut.h>
 #include "GlutMainWindow.h"
 
+/**
+	Create GlutMainWindow with this approach only 
+	
+	@param x position x
+	@param y position y
+	@param w width
+	@param h height
+	@param nRows number of rows in the main window
+	@param nCols number of cols in the main window
+*/
 GlutMainWindow *GlutWindow::CreateGlutMainWindow(int x, int y, int w, int h, int nRows, int nCols)
 {
 	GlutMainWindow *mainWindowPtr = new GlutMainWindow(x, y, w, h, nRows, nCols);
@@ -35,6 +45,12 @@ GlutMainWindow::~GlutMainWindow()
 {
 }
 
+/**
+	Layout all GlutSubWindow in this GlutMainWindow
+
+	@param w width
+	@param h height
+*/
 int GlutMainWindow::Layout(int w, int h)
 {
 	GlutWindowDescriptor curGd = glutGetWindow();
@@ -77,6 +93,12 @@ int GlutMainWindow::Layout(int w, int h)
 	return 0;
 }
 
+/**
+	Get linear index of a GlutSubWindow in the specific cell
+
+	@param row row index
+	@param col col index
+*/
 int GlutMainWindow::GetIndex(int row, int col)
 {
 	int index;
@@ -106,6 +128,12 @@ void GlutMainWindow::SetTimerFunc(TimerFunc timerFunc, double msec)
 	glutSetWindow(curGd);
 }
 
+/**
+	Get instance of a GlutSubWindow in the specific cell
+
+	@param row row index
+	@param col col index
+*/
 GlutSubWindow *GlutMainWindow::GetSubWindow(int row, int col)
 {
 	int index = GetIndex(row, col);
@@ -118,6 +146,11 @@ GlutSubWindow *GlutMainWindow::GetSubWindow(int row, int col)
 	return m_subwindows[index];
 }
 
+/**
+	Add a pointer of GlutSubWindow to this GlutMainWindow
+
+	@param subWindowPtr pointer of GlutSubWindow
+*/
 int GlutMainWindow::AddSubWindow(GlutSubWindow * subWindowPtr)
 {
 	if (subWindowPtr == NULL)
@@ -132,6 +165,13 @@ int GlutMainWindow::AddSubWindow(GlutSubWindow * subWindowPtr)
 	return 0;
 }
 
+/**
+	Replace pointer of GlutSubWindow to this GlutMainWindow
+
+	@param subWindowPtr pointer of GlutSubWindow
+	@param row row index
+	@param col col index
+*/
 int GlutMainWindow::ReplaceSubWindow(GlutSubWindow * subWindowPtr, int row, int col)
 {
 	int index = GetIndex(row, col);
@@ -150,6 +190,9 @@ int GlutMainWindow::ReplaceSubWindow(GlutSubWindow * subWindowPtr, int row, int 
 	return 0;
 }
 
+/**
+	Iteratively display all GlutSubWindows
+*/
 int GlutMainWindow::Display()
 {
 	GlutWindowDescriptor curGd = glutGetWindow();
@@ -170,6 +213,9 @@ int GlutMainWindow::Display()
 	return 0;
 }
 
+/**
+	GlutWindow version Reshape plus Layout
+*/
 int GlutMainWindow::Reshape(int w, int h)
 {
 	GlutWindow::Reshape(w, h);
@@ -208,6 +254,9 @@ int GlutMainWindow::PassiveMotionHandler(int x, int y)
 	return 0;
 }
 
+/**
+	Display FPS metric
+*/
 void GlutMainWindow::MeasureMainWindow()
 {
 #ifdef _MEASUREMENT
@@ -223,6 +272,9 @@ void GlutMainWindow::MeasureMainWindow()
 #endif
 }
 
+/**
+	Wrapper for glutWindow creation
+*/
 void GlutMainWindow::Init(int x, int y, int w, int h, int nRows, int nCols)
 {
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);

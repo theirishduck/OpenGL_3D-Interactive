@@ -3,6 +3,9 @@
 
 using namespace Config;
 
+/**
+	A UV map for a normal plane
+*/
 static const GLfloat PLANE_UVS[] = {
 	0.0f, 0.0f,
 	1.0f, 0.0f,
@@ -10,6 +13,9 @@ static const GLfloat PLANE_UVS[] = {
 	0.0f, 1.0f
 };
 
+/**
+	Number of float in PLANE_UVS
+*/
 static const int PLANE_UVS_SIZE = 8;
 
 GLPlane3D::GLPlane3D(GLScene3D *parentScene) :
@@ -62,14 +68,25 @@ int GLPlane3D::SetTexture(const char *filename, GLfloat * uvs, int size)
 	return 0;
 }
 
+/**
+	Given a 3D point, check is it can project on the limited plane and is it close enough.
+
+	@param point 3D point
+*/
 bool GLPlane3D::IsOnto(vec3 point)
 {
 	float dis = dot((point - m_pos), m_normal);
 	vec3 project_point = Space3D::PointProjectToPlane(dis, m_pos, m_normal, point);
-
-	return IsInside(project_point) && dis < m_touchDistance;
+	
+	return IsInside(project_point) && dis / m_parentScene->m_spaceScale < m_touchDistance;
 }
 
+/**
+	Use four points of plane and one point in the space and choose two point clockwisely in turn with that point in the space to generate two inner products.
+	And check these four inner product are all positive (negative implies that point is not on the plane)
+
+	@param point 3D point
+*/
 bool GLPlane3D::IsInside(vec3 point)
 {
 	vec3 p1 = m_pos;
@@ -101,6 +118,9 @@ glm::vec3 GLPlane3D::GetNormal() const
 	return m_normal;
 }
 
+/**
+	Push four vertexes and one normal vector and calculate coffs of plane equation
+*/
 void GLPlane3D::Init(glm::vec3 pos, glm::vec3 u, glm::vec3 v)
 {
 	m_normal = glm::cross(u, v);

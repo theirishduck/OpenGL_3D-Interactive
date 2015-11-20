@@ -8,14 +8,21 @@ class GLScene;
 class GLDepthScene;
 class GlutWindow;
 
+/** For protability, we define GLContext by ourself. You can use this framework on other window system*/
 typedef GlutWindow GLContext;
 
 typedef void(*MouseMoveCallback)(GLScene *scene, float dx, float dy, float dz);
 
+/**
+	Declare general function interface, event handling interface.
+
+	GLScene doesn't limited in 3D space. You can derived your scene for specific purpose.
+*/
 class GLScene
 {
 	friend class GLDepthScene;
 	friend class GLObject3D;
+	friend class GLPlane3D;
 	friend class ObjModel;
 public:
 	GLScene(GLContext *context);
@@ -43,6 +50,8 @@ public:
 	void SetMouseVisiable(bool b);
 	bool IsPhysicalMouseEnable() const;
 	void SetPhysicalMouseEnable(bool b);
+
+	void SetIgnoreZ(bool b);
 	
 	virtual int Render(int x, int y, int width, int height) = 0;
 	virtual int Setup(int x, int y, int width, int height);
@@ -63,16 +72,39 @@ public:
 protected:
 	GLContext *m_context;
 
-	glm::vec3 m_origin;
-	float m_spaceScale; // Consider a scene as a box, this is its dimension length
+	/**
+		Ignore z coordinate validation
+	*/
+	bool m_ignoreZ;
 
+	/**
+		Mouse start position
+	*/
+	glm::vec3 m_origin;
+
+	/**
+		Scale of scene can be different
+	*/
+	float m_spaceScale; 
+
+	/**
+		Mouse point in the 3D space
+	*/
 	glm::vec3 m_mouse;
+
+	/**
+		Delta value of mouse point
+	*/
 	glm::vec3 m_mouseDelta;
 	
 	MouseMoveCallback m_mouseMoveCallback;
 
 	bool m_physicalMouseEnable;
+	
+	/** Visiability of 3D ball*/
 	bool m_mouseVisiable;
+	
+	/** Radius of 3D ball*/
 	float m_mouseRadius;
 	glm::vec3 m_mouseColor;
 

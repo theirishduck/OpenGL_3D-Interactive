@@ -7,19 +7,19 @@
 using namespace Config;
 
 static const GLfloat DEFAULT_DIFFUSE[4] = {
-	0.6f, 0.6f, 0.6f, 1.0f
+	.8f, .8f, .8f, 1.0f
 };
 
 static const GLfloat DEFAULT_AMBIENT[4] = {
-	0.1f, 0.1f, 0.1f, 1.0f
+	1.0f, .6f, .6f, 0.5f
 };
 
 static const GLfloat DEFAULT_SPECULAR[4] = {
-	0.7f, 0.7f, 0.7f, 1.0f
+	.2f, .3f, .3f, .3f
 };
 
 static const GLfloat DEFAULT_POSITION[4] = {
-	0.0f, 0.0f, 500.0f, 0.0f
+	-500.0f, 1500.0f, 1000.0f, 0.0f
 };
 
 
@@ -143,6 +143,14 @@ void GLScene3D::SetPositionLightPos(glm::vec3 pos)
 	m_position[2] = pos.z;
 }
 
+/**
+	Simply iterate through all objects and call RenderObject()
+
+	@param x viewport x
+	@param y viewport y
+	@param width viewport width
+	@param height viewport height
+*/
 int GLScene3D::Render(int x, int y, int width, int height)
 {
 	glColor3f(1.0f, 1.0f, 1.0f);
@@ -162,6 +170,14 @@ int GLScene3D::Render(int x, int y, int width, int height)
 	return 0;
 }
 
+/**
+	Set lighting parameters
+
+	@param x viewport x
+	@param y viewport y
+	@param width viewport width
+	@param height viewport height
+*/
 int GLScene3D::Setup(int x, int y, int width, int height)
 {
 	GLScene::Setup(x, y, width, height);
@@ -182,11 +198,21 @@ int GLScene3D::Setup(int x, int y, int width, int height)
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_LIGHT0);
+
 	glEnable(GL_BLEND);
+	glEnable(GL_NORMALIZE);
 
 	return 0;
 }
 
+/**
+	Check pending events and dispatch events.
+
+	@param x viewport x
+	@param y viewport y
+	@param width viewport width
+	@param height viewport height
+*/
 int GLScene3D::Update(int x, int y, int width, int height)
 {
 	GLScene::Update(x, y, width, height);
@@ -215,6 +241,9 @@ int GLScene3D::KeyboardHandler(unsigned char key, int x, int y)
 	return 0;
 }
 
+/**
+	For testing purpose, this function directly manipulate mouse value with Keyboard input
+*/
 int GLScene3D::SpecialKeyHandler(int key, int x, int y)
 {
 	switch (key)
@@ -275,7 +304,14 @@ int GLScene3D::MotionHandler(int x, int y)
 	{
 		if (m_physicalMouseEnable)
 		{
-			OnMouseMove(x, y, m_mouse.z / m_spaceScale);
+			if (m_camera != NULL)
+			{
+				m_camera->RotateY(0.01f * (m_mouse.x - x));
+				m_camera->RotateX(0.01f * (y - m_mouse.y));
+				SetPositionLightPos(glm::vec3((m_camera->finalX),
+					(m_camera->finalY),
+					(m_camera->finalZ)));
+			}
 		}
 		else
 		{
@@ -291,24 +327,18 @@ int GLScene3D::PassiveMotionHandler(int x, int y)
 	return 0;
 }
 
+/**
+	Move mouse to a new position determined by passing arguments and rotate camera according to mouse delta.
+*/
 int GLScene3D::OnMouseMove(float x, float y, float z)
 {
-	if (m_camera != NULL)
+	if (IsInSpace(x, y, z))
 	{
-		if (m_physicalMouseEnable)
+		GLScene::OnMouseMove(x, y, z);
+		if (m_camera != NULL)
 		{
-			m_camera->RotateY(0.01f * (m_mouse.x - x));
-			m_camera->RotateX(0.01f * (y - m_mouse.y));
-
-			SetPositionLightPos(glm::vec3((m_camera->finalX), 
-				(m_camera->finalY),
-				(m_camera->finalZ)));
-		}
-		else if(IsInSpace(x, y, z))
-		{
-			GLScene::OnMouseMove(x, y, z);
 			m_camera->RotateY(10.0f * -m_mouseDelta.x);
-			m_camera->RotateX(10.0f * (m_mouseDelta.y));
+			m_camera->RotateX(10.0f * -(m_mouseDelta.y));
 		}
 	}
 

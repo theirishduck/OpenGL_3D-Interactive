@@ -5,6 +5,10 @@
 
 class GlutMainWindow;
 
+/**
+	To support SubWindow features of GLUT system without losing encapsulation.
+	I maintain an additional member variable, m_parentGd.
+*/
 class GlutSubWindow :
 	public GlutWindow
 {

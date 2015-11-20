@@ -5,6 +5,13 @@
 
 class GlutMainWindow;
 
+/**
+	This class is depricated for performence issue.
+	GlutSubSceneWindow supports displaying one scene.
+	Currently, I use multi-viewport approach to achieve multi-view effect instead of multi-subwindow.
+	
+	But if we want to display each view with different OpenGL context, use this class instead of GlutSubMultiSceneWindow
+*/
 class GlutSubSceneWindow : 
 	public GlutSubWindow
 {

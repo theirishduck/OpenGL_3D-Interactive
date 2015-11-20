@@ -20,7 +20,7 @@ using namespace Config;
 ObjModel::ObjModel(GLScene3D *parentScene) :
 	GLObject3D(parentScene),
 	m_SpinEnable(false),
-	m_detectDistance(g_touchDistance){
+	m_detectDistance(g_model_touchDistance){
 	mode = 3;
 }
 	

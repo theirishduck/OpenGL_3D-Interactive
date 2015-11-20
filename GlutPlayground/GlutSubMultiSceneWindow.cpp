@@ -2,6 +2,13 @@
 #include "GlutMainWindow.h"
 #include "GlutSubMultiSceneWindow.h"
 
+/**
+	Always use this function to create a GlutSubMultiSceneWindow
+
+	@param mainWindow parent window
+	@param nRows number of rows
+	@param nCols number of cols
+*/
 GlutSubMultiSceneWindow *GlutWindow::CreateGlutSubMultiSceneWindow(GlutMainWindow *mainWindow, int nRows, int nCols)
 {
 	if (mainWindow == NULL) {
@@ -74,6 +81,10 @@ GLScene * GlutSubMultiSceneWindow::GetStartScene()
 	return m_scenes[m_startIndex];
 }
 
+/**
+	Set the m_startIndex. 
+	GlutSubMultiSceneWindow will display from m_startIndex
+*/
 int GlutSubMultiSceneWindow::SetStartSceneIndex(int index)
 {
 	if (index >= m_scenes.size())
@@ -89,6 +100,9 @@ int GlutSubMultiSceneWindow::GetStartSceneIndex() const
 	return m_startIndex;
 }
 
+/**
+	Iteratively display all scenes in the m_scenes
+*/
 int GlutSubMultiSceneWindow::Display()
 {
 	int wStep = m_width / m_nCols;
@@ -111,9 +125,11 @@ int GlutSubMultiSceneWindow::Display()
 		{
 			int x = col * wStep;
 			int y = row * hStep;
-			scene->RenderBackgroundImage(x, y, wStep, hStep);
+			
+			
 			scene->Update(x, y, wStep, hStep);
 			scene->Setup(x, y, wStep, hStep);
+			scene->RenderBackgroundImage(x, y, wStep, hStep);
 			scene->Render(x, y, wStep, hStep);
 		}
 		
